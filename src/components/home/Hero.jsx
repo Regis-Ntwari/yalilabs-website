@@ -210,12 +210,12 @@ export default function Hero() {
 
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}>
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <Button component={Link} to="/research" variant="contained" size="large" endIcon={<ArrowRightAltIcon />} sx={{ py: 1.25, px: 3 }}>
+                <Button component={Link} to="/products" variant="contained" size="large" endIcon={<ArrowRightAltIcon />} sx={{ py: 1.25, px: 3 }}>
                   Explore our work
                 </Button>
-                <Button component={Link} to="/company/about-us" variant="outlined" size="large" sx={{ py: 1.25, px: 3 }}>
+                {/* <Button component={Link} to="/company/about-us" variant="outlined" size="large" sx={{ py: 1.25, px: 3 }}>
                   Meet Yali Labs
-                </Button>
+                </Button> */}
               </Box>
             </motion.div>
           </Box>
@@ -261,7 +261,7 @@ export default function Hero() {
                     '&:hover': { opacity: 0.7 },
                   }}
                 >
-                  Try the playground →
+                  Try the playground
                 </Typography>
               </Box>
             </Box>

@@ -124,13 +124,15 @@ function HeadCard({ member, index }) {
   const colors = useColors();
 
   return (
-    <AnimatedReveal delay={index * 0.1}>
+    <AnimatedReveal delay={index * 0.1} sx={{ height: '100%' }}>
       <Box
         sx={{
           display: 'flex',
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 3,
-          p: { xs: 3, md: 4 },
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          gap: 2.5,
+          height: '100%',
+          p: { xs: 3, md: 3.5 },
           border: `1px solid ${colors.border.subtle}`,
           borderRadius: '14px',
           backgroundColor: colors.inkLight,
@@ -154,9 +156,9 @@ function HeadCard({ member, index }) {
           },
         }}
       >
-        <Avatar member={member} size={96} />
+        <Avatar member={member} size={88} />
 
-        <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', minWidth: 0 }}>
           {/* Name + area */}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
             <Typography
@@ -214,7 +216,6 @@ function HeadCard({ member, index }) {
               fontSize: '0.875rem',
               lineHeight: 1.75,
               fontFamily: '"Inter", sans-serif',
-              maxWidth: 560,
             }}
           >
             {member.description}
@@ -222,7 +223,7 @@ function HeadCard({ member, index }) {
 
           {/* LinkedIn — shown only if provided */}
           {member.linkedin && (
-            <Box sx={{ mt: 2 }}>
+            <Box sx={{ mt: 'auto', pt: 2 }}>
               <Button
                 component="a"
                 href={member.linkedin}
@@ -460,11 +461,17 @@ export default function Team() {
               </Typography>
             </AnimatedReveal>
 
+            {/* One row: every leader gets an equal-width, equal-height card */}
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                gridTemplateColumns: {
+                  xs: '1fr',
+                  sm: 'repeat(2, 1fr)',
+                  md: `repeat(${heads.length}, 1fr)`,
+                },
                 gap: 3,
+                alignItems: 'stretch',
               }}
             >
               {heads.map((member, i) => (
