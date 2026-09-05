@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box } from '@mui/material';
 import { motion } from 'framer-motion';
 
@@ -11,7 +10,6 @@ export default function AnimatedReveal({
   duration = 0.55,
   y = 20,
   sx = {},
-  as = 'div',
 }) {
   return (
     <Box

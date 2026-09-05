@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
   AppBar,
   Box,
@@ -21,7 +21,6 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import { Link, useLocation } from 'react-router-dom';
 import { useColors, useThemeMode } from '../../theme/ThemeContext';
-import { motion } from 'framer-motion';
 
 const navItems = [
   { label: 'Products', href: '/products' },

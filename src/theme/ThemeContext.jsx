@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useContext,
   useState,
@@ -29,7 +29,7 @@ export function AppThemeProvider({ children }) {
   const toggleMode = useCallback(() => {
     setMode(m => {
       const next = m === 'dark' ? 'light' : 'dark';
-      try { localStorage.setItem('yali-theme', next); } catch {}
+      try { localStorage.setItem('yali-theme', next); } catch { /* storage unavailable */ }
       return next;
     });
   }, []);
@@ -47,7 +47,9 @@ export function AppThemeProvider({ children }) {
 }
 
 /** Returns the current semantic color token object */
+// eslint-disable-next-line react-refresh/only-export-components
 export const useColors = () => useContext(ColorCtx);
 
 /** Returns { mode, toggleMode } */
+// eslint-disable-next-line react-refresh/only-export-components
 export const useThemeMode = () => useContext(ModeCtx);

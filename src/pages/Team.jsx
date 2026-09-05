@@ -1,11 +1,9 @@
-import React from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { motion } from 'framer-motion';
 import { useColors } from '../theme/ThemeContext';
-import SectionHeader from '../components/common/SectionHeader';
 import AnimatedReveal from '../components/common/AnimatedReveal';
 
 /**

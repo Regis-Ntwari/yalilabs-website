@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useColors } from '../../theme/ThemeContext';

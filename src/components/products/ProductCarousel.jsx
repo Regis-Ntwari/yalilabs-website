@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Box, Typography, Button, IconButton } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNew';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';

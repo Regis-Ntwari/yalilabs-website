@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Container, Typography, Link as MuiLink, Divider, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GitHubIcon from '@mui/icons-material/GitHub';

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import { Link } from 'react-router-dom';
