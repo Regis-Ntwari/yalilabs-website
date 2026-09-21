@@ -4,19 +4,17 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useColors } from '../../theme/ThemeContext';
+import { useModule } from '../../content/useContent';
 
 // ─── Animated token visualization ────────────────────────────────────────────
-const DEMO = {
-  text: 'Nagiye gusura abanyeshuri.',
-  tokens: ['Na', 'gi', 'ye', ' gu', 'su', 'ra', ' aba', 'nye', 'shu', 'ri', '.'],
-  ids: [78, 1760, 203, 5256, 892, 451, 1845, 634, 907, 46, 12],
-  chars: 26,
-};
-
-function TokenViz() {
+function TokenViz({ hero }) {
   const colors = useColors();
   const [phase, setPhase] = useState(0); // 0=text 1=splitting 2=tokens
   const [visible, setVisible] = useState(false);
+
+  const tokens = hero.demoTokens || [];
+  const ids = hero.demoIds || [];
+  const text = hero.demoText || '';
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 600);
@@ -42,10 +40,10 @@ function TokenViz() {
         {phase === 0 && (
           <motion.span key="full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}
             style={{ color: colors.text.primary, fontSize: '17px', fontWeight: 500, letterSpacing: '-0.01em' }}>
-            {DEMO.text}
+            {text}
           </motion.span>
         )}
-        {(phase === 1 || phase === 2) && DEMO.tokens.map((tok, i) => (
+        {(phase === 1 || phase === 2) && tokens.map((tok, i) => (
           <motion.span key={`${phase}-${i}`}
             initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.22, delay: i * 0.04 }}
@@ -59,6 +57,7 @@ function TokenViz() {
               fontSize: '15px',
               fontWeight: 500,
               transition: 'all 0.3s ease',
+              whiteSpace: 'pre',
             }}>
             {tok}
           </motion.span>
@@ -68,10 +67,10 @@ function TokenViz() {
       {phase === 2 && (
         <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.5 }}>
           <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10px', color: colors.text.tertiary, mt: 1.5, letterSpacing: '0.03em' }}>
-            → [{DEMO.ids.join(', ')}]
+            → [{ids.join(', ')}]
           </Typography>
           <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10px', color: colors.accent, mt: 0.5, letterSpacing: '0.03em' }}>
-            compression: 3.7× · {DEMO.chars} chars → {DEMO.tokens.length} tokens
+            compression: {hero.demoCompression} · {text.length} chars → {tokens.length} tokens
           </Typography>
         </motion.div>
       )}
@@ -110,7 +109,6 @@ function ParticleCanvas() {
         p.y = (p.y + p.vy + H) % H;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        // Use blue accent particles — stronger in light mode so they show up
         ctx.fillStyle = `rgba(26,159,255,${p.opacity * (colors.isDark ? 0.55 : 0.65)})`;
         ctx.fill();
       });
@@ -124,7 +122,7 @@ function ParticleCanvas() {
             ctx.lineTo(q.x, q.y);
             ctx.strokeStyle = colors.isDark
               ? `rgba(255,255,255,${0.035 * (1 - dist / 90)})`
-              : `rgba(0,0,0,${0.04 * (1 - dist / 90)})`;
+              : `rgba(15,23,42,${0.05 * (1 - dist / 90)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
@@ -149,6 +147,7 @@ function ParticleCanvas() {
 // ─── Hero ────────────────────────────────────────────────────────────────────
 export default function Hero() {
   const colors = useColors();
+  const { hero } = useModule('home');
 
   return (
     <Box
@@ -179,7 +178,6 @@ export default function Hero() {
 
           {/* Left: copy */}
           <Box>
-            {/* Headline — no pill badge */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
               <Typography
                 variant="h1"
@@ -192,11 +190,15 @@ export default function Hero() {
                   mb: 3,
                 }}
               >
-                Building AI that{' '}
-                <Box component="span" sx={{ color: colors.accent, fontStyle: 'italic', fontWeight: 600 }}>
-                  understands
-                </Box>{' '}
-                Africa.
+                {hero.headlinePre}{' '}
+                {hero.headlineAccent && (
+                  <>
+                    <Box component="span" sx={{ color: colors.accent, fontStyle: 'italic', fontWeight: 600 }}>
+                      {hero.headlineAccent}
+                    </Box>{' '}
+                  </>
+                )}
+                {hero.headlinePost}
               </Typography>
             </motion.div>
 
@@ -204,18 +206,15 @@ export default function Hero() {
               <Typography
                 sx={{ color: colors.text.secondary, fontSize: { xs: '1rem', md: '1.1rem' }, lineHeight: 1.75, maxWidth: 480, mb: 4.5, fontFamily: '"Inter",sans-serif' }}
               >
-                Yali Labs builds language technologies, foundation models, and developer tools designed around African languages — starting with Kinyarwanda.
+                {hero.subtitle}
               </Typography>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}>
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <Button component={Link} to="/products" variant="contained" size="large" endIcon={<ArrowRightAltIcon />} sx={{ py: 1.25, px: 3 }}>
-                  Explore our work
+                <Button component={Link} to={hero.ctaHref || '/products'} variant="contained" size="large" endIcon={<ArrowRightAltIcon />} sx={{ py: 1.25, px: 3 }}>
+                  {hero.ctaLabel}
                 </Button>
-                {/* <Button component={Link} to="/company/about-us" variant="outlined" size="large" sx={{ py: 1.25, px: 3 }}>
-                  Meet Yali Labs
-                </Button> */}
               </Box>
             </motion.div>
           </Box>
@@ -227,6 +226,7 @@ export default function Hero() {
                 border: `1px solid ${colors.border.subtle}`,
                 borderRadius: '8px',
                 backgroundColor: colors.inkLight,
+                boxShadow: colors.isDark ? 'none' : '0 20px 60px rgba(15,23,42,0.06)',
                 p: { xs: 2.5, md: 3.5 },
                 position: 'relative',
                 overflow: 'hidden',
@@ -240,30 +240,32 @@ export default function Hero() {
                   ))}
                 </Box>
                 <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10.5px', color: colors.text.tertiary, letterSpacing: '0.06em', ml: 0.5 }}>
-                  alta-tokenizer · kinyarwanda
+                  {hero.terminalLabel}
                 </Typography>
               </Box>
 
-              <TokenViz />
+              <TokenViz hero={hero} />
 
-              <Box sx={{ mt: 3, pt: 2.5, borderTop: `1px solid ${colors.border.subtle}` }}>
-                <Typography
-                  component="a"
-                  href="https://altatokenizer.yalilabs.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  sx={{
-                    fontFamily: '"IBM Plex Mono",monospace',
-                    fontSize: '11.5px',
-                    color: colors.accent,
-                    textDecoration: 'none',
-                    transition: 'opacity 0.15s ease',
-                    '&:hover': { opacity: 0.7 },
-                  }}
-                >
-                  Try the playground
-                </Typography>
-              </Box>
+              {hero.playgroundHref && (
+                <Box sx={{ mt: 3, pt: 2.5, borderTop: `1px solid ${colors.border.subtle}` }}>
+                  <Typography
+                    component="a"
+                    href={hero.playgroundHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      fontFamily: '"IBM Plex Mono",monospace',
+                      fontSize: '11.5px',
+                      color: colors.accent,
+                      textDecoration: 'none',
+                      transition: 'opacity 0.15s ease',
+                      '&:hover': { opacity: 0.7 },
+                    }}
+                  >
+                    {hero.playgroundLabel}
+                  </Typography>
+                </Box>
+              )}
             </Box>
           </motion.div>
         </Box>

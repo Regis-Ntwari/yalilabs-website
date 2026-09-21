@@ -2,9 +2,12 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Box, CircularProgress } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
+import { QueryClientProvider } from '@tanstack/react-query';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import { useColors } from './theme/ThemeContext';
+import { queryClient } from './lib/queryClient';
+import { useSiteContent } from './content/useContent';
 
 // Lazy-loaded pages for performance
 const Home = lazy(() => import('./pages/Home'));
@@ -16,7 +19,10 @@ const Team = lazy(() => import('./pages/Team'));
 const Contact = lazy(() => import('./pages/Contact'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
-function PageLoader() {
+// The admin lives in its own chunk — nothing on the public site links to it.
+const AdminApp = lazy(() => import('./admin/AdminApp'));
+
+function PageLoader({ fullScreen = false }) {
   const colors = useColors();
   return (
     <Box
@@ -24,7 +30,7 @@ function PageLoader() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '40vh',
+        minHeight: fullScreen ? '100vh' : '40vh',
         backgroundColor: colors.ink,
       }}
     >
@@ -52,14 +58,19 @@ function PageTransition({ children }) {
   );
 }
 
-function Layout() {
+function PublicLayout() {
   const colors = useColors();
   const location = useLocation();
+  // Content is fetched once for the whole site; pages fall back to code
+  // defaults if the request fails, so only the first load is gated.
+  const { isPending } = useSiteContent();
 
   // Scroll to top on route change
   React.useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [location.pathname]);
+
+  if (isPending) return <PageLoader fullScreen />;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: colors.ink }}>
@@ -89,8 +100,20 @@ function Layout() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Layout />
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/admin/*"
+            element={
+              <Suspense fallback={<PageLoader fullScreen />}>
+                <AdminApp />
+              </Suspense>
+            }
+          />
+          <Route path="*" element={<PublicLayout />} />
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }

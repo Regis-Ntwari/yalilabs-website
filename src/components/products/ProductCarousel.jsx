@@ -5,12 +5,10 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { useColors } from '../../theme/ThemeContext';
-import { products } from '../../data/products';
+import ContentIcon from '../../content/ContentIcon';
 
 const EASE = [0.22, 1, 0.36, 1];
 
-// Slide travel — the outgoing slide leaves the way the incoming one arrives from,
-// and its children cascade in behind it so the card doesn't read as one flat block.
 const slideVariants = {
   enter: (dir) => ({ x: dir >= 0 ? 64 : -64, opacity: 0 }),
   center: {
@@ -74,14 +72,11 @@ function StatusBadge({ badge, badgeActive }) {
   );
 }
 
-/* ─── One product, filling the carousel frame ─── */
 function ProductSlide({ product }) {
   const colors = useColors();
-  const Icon = product.icon;
 
   return (
     <Box sx={{ position: 'relative', zIndex: 1 }}>
-      {/* Icon + status */}
       <Box
         component={motion.div}
         variants={riseItem}
@@ -100,12 +95,11 @@ function ProductSlide({ product }) {
             border: `1px solid ${product.badgeActive ? `${colors.accent}33` : colors.border.subtle}`,
           }}
         >
-          <Icon sx={{ fontSize: { xs: 26, md: 30 }, color: product.badgeActive ? colors.accent : colors.text.tertiary }} />
+          <ContentIcon name={product.icon} sx={{ fontSize: { xs: 26, md: 30 }, color: product.badgeActive ? colors.accent : colors.text.tertiary }} />
         </Box>
         <StatusBadge badge={product.badge} badgeActive={product.badgeActive} />
       </Box>
 
-      {/* Title — same type treatment as the page heading */}
       <Typography
         component={motion.h2}
         variants={riseItem}
@@ -138,11 +132,10 @@ function ProductSlide({ product }) {
         {product.description}
       </Typography>
 
-      {/* Feature keywords — a quick read of what's inside */}
       <Box component={motion.div} variants={riseItem} sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 3 }}>
-        {product.features.slice(0, 4).map((f) => (
+        {(product.features || []).slice(0, 4).map((f, i) => (
           <Box
-            key={f.title}
+            key={`${f.title}-${i}`}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -181,7 +174,6 @@ function ProductSlide({ product }) {
   );
 }
 
-/* ─── Arrow control ─── */
 function NavButton({ label, onClick, children }) {
   const colors = useColors();
   return (
@@ -215,7 +207,7 @@ function NavButton({ label, onClick, children }) {
  * arrow keys, or the segmented progress rail. Reports the active index up so
  * the rest of the page (how it works, features, CTA) stays in step.
  */
-export default function ProductCarousel({ activeIndex, onSelect }) {
+export default function ProductCarousel({ products, activeIndex, onSelect }) {
   const colors = useColors();
   const [direction, setDirection] = useState(0);
   const count = products.length;
@@ -243,7 +235,6 @@ export default function ProductCarousel({ activeIndex, onSelect }) {
       onKeyDown={handleKeyDown}
       sx={{ outline: 'none', '&:focus-visible': { '& .carousel-frame': { borderColor: colors.accent } } }}
     >
-      {/* Frame */}
       <Box
         className="carousel-frame"
         sx={{
@@ -253,15 +244,12 @@ export default function ProductCarousel({ activeIndex, onSelect }) {
           border: `1px solid ${colors.border.subtle}`,
           backgroundColor: colors.inkLight,
           p: { xs: 3, sm: 4, md: 6 },
-          // Height is held steady so the page doesn't jump as slides swap; shorter
-          // slides sit centered rather than leaving all the slack at the bottom.
           minHeight: { xs: 500, sm: 460, md: 440 },
           display: 'flex',
           alignItems: 'center',
           transition: 'border-color 0.25s ease',
         }}
       >
-        {/* Accent hairline across the top, brightest on the available product */}
         <Box
           aria-hidden="true"
           sx={{
@@ -275,7 +263,6 @@ export default function ProductCarousel({ activeIndex, onSelect }) {
           }}
         />
 
-        {/* Dot grid + accent bloom, fading out toward the text */}
         <Box
           aria-hidden="true"
           sx={{
@@ -283,7 +270,7 @@ export default function ProductCarousel({ activeIndex, onSelect }) {
             inset: 0,
             backgroundImage: `radial-gradient(${colors.dotColor} 1px, transparent 1px)`,
             backgroundSize: '26px 26px',
-            opacity: colors.isDark ? 0.3 : 0.2,
+            opacity: colors.isDark ? 0.3 : 0.35,
             maskImage: 'linear-gradient(to left, black, transparent 60%)',
             WebkitMaskImage: 'linear-gradient(to left, black, transparent 60%)',
             pointerEvents: 'none',
@@ -305,7 +292,6 @@ export default function ProductCarousel({ activeIndex, onSelect }) {
           }}
         />
 
-        {/* Index watermark */}
         <Typography
           aria-hidden="true"
           sx={{
@@ -349,7 +335,6 @@ export default function ProductCarousel({ activeIndex, onSelect }) {
         </AnimatePresence>
       </Box>
 
-      {/* Controls */}
       <Box
         sx={{
           display: 'flex',
@@ -359,7 +344,6 @@ export default function ProductCarousel({ activeIndex, onSelect }) {
           flexWrap: { xs: 'wrap', sm: 'nowrap' },
         }}
       >
-        {/* Counter */}
         <Typography
           aria-live="polite"
           sx={{
@@ -374,7 +358,6 @@ export default function ProductCarousel({ activeIndex, onSelect }) {
           {` / ${String(count).padStart(2, '0')}`}
         </Typography>
 
-        {/* Segmented rail — the active segment stretches and fills with accent */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, minWidth: 120 }}>
           {products.map((p, i) => {
             const isActive = i === activeIndex;
@@ -415,22 +398,22 @@ export default function ProductCarousel({ activeIndex, onSelect }) {
           })}
         </Box>
 
-        {/* Up next */}
-        <Typography
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            fontFamily: '"IBM Plex Mono", monospace',
-            fontSize: '11px',
-            letterSpacing: '0.06em',
-            color: colors.text.tertiary,
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-          }}
-        >
-          Next — {nextProduct.title}
-        </Typography>
+        {count > 1 && (
+          <Typography
+            sx={{
+              display: { xs: 'none', md: 'block' },
+              fontFamily: '"IBM Plex Mono", monospace',
+              fontSize: '11px',
+              letterSpacing: '0.06em',
+              color: colors.text.tertiary,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
+            Next — {nextProduct.title}
+          </Typography>
+        )}
 
-        {/* Arrows */}
         <Box sx={{ display: 'flex', gap: 1, flexShrink: 0, ml: { xs: 'auto', sm: 0 } }}>
           <NavButton label="Previous product" onClick={prev}>
             <ArrowBackIcon sx={{ fontSize: 15 }} />

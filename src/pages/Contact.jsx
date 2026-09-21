@@ -4,9 +4,10 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import EmailIcon from '@mui/icons-material/Email';
 import { motion } from 'framer-motion';
 import { useColors } from '../theme/ThemeContext';
+import { useModule } from '../content/useContent';
 import AnimatedReveal from '../components/common/AnimatedReveal';
 
-function ContactForm() {
+function ContactForm({ copy, email }) {
   const colors = useColors();
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [errors, setErrors] = useState({});
@@ -43,8 +44,10 @@ function ContactForm() {
           <Box sx={{ width: 48, height: 48, borderRadius: '50%', backgroundColor: colors.accentFaint, border: `1px solid ${colors.accent}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2 }}>
             <Typography sx={{ fontSize: '1.5rem' }}>✓</Typography>
           </Box>
-          <Typography sx={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 600, fontSize: '1.1rem', color: colors.text.primary, mb: 1 }}>Message sent.</Typography>
-          <Typography sx={{ color: colors.text.secondary, fontSize: '0.9rem', fontFamily: '"Inter",sans-serif', lineHeight: 1.6 }}>Thanks for reaching out. We will get back to you at {form.email}.</Typography>
+          <Typography sx={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 600, fontSize: '1.1rem', color: colors.text.primary, mb: 1 }}>{copy.successHeading}</Typography>
+          <Typography sx={{ color: colors.text.secondary, fontSize: '0.9rem', fontFamily: '"Inter",sans-serif', lineHeight: 1.6 }}>
+            {(copy.successText || '').replace('{email}', form.email)}
+          </Typography>
         </Box>
       </motion.div>
     );
@@ -58,11 +61,11 @@ function ContactForm() {
       {status === 'error' && (
         <Alert severity="error" sx={{ borderRadius: '4px' }}>
           Something went wrong. Please email us at{' '}
-          <a href="mailto:contact@yalilabs.com" style={{ color: 'inherit' }}>contact@yalilabs.com</a>.
+          <a href={`mailto:${email}`} style={{ color: 'inherit' }}>{email}</a>.
         </Alert>
       )}
       <Button type="submit" variant="contained" size="large" disabled={status === 'loading'} endIcon={status === 'loading' ? <CircularProgress size={14} color="inherit" /> : <ArrowRightAltIcon />} sx={{ alignSelf: 'flex-start', mt: 0.5 }}>
-        {status === 'loading' ? 'Sending...' : 'Send message'}
+        {status === 'loading' ? copy.sendingLabel : copy.submitLabel}
       </Button>
     </Box>
   );
@@ -70,11 +73,12 @@ function ContactForm() {
 
 function DotGrid() {
   const colors = useColors();
-  return <Box aria-hidden="true" sx={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(${colors.dotColor} 1px, transparent 1px)`, backgroundSize: '28px 28px', opacity: 0.3 }} />;
+  return <Box aria-hidden="true" sx={{ position: 'absolute', inset: 0, backgroundImage: `radial-gradient(${colors.dotColor} 1px, transparent 1px)`, backgroundSize: '28px 28px', opacity: colors.isDark ? 0.3 : 0.5 }} />;
 }
 
 export default function Contact() {
   const colors = useColors();
+  const { hero, info, form } = useModule('contact');
 
   return (
     <>
@@ -85,10 +89,10 @@ export default function Contact() {
           <DotGrid />
           <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 }, position: 'relative', zIndex: 1 }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
-              <Typography variant="overline" sx={{ color: colors.accent, display: 'block', mb: 2, letterSpacing: '0.12em', fontSize: '0.68rem' }}>Contact</Typography>
-              <Typography variant="h1" sx={{ fontSize: { xs: '2.25rem', md: '3.25rem' }, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.text.primary, mb: 2.5, maxWidth: 600 }}>Let&apos;s build the future of African AI.</Typography>
+              <Typography variant="overline" sx={{ color: colors.accent, display: 'block', mb: 2, letterSpacing: '0.12em', fontSize: '0.68rem' }}>{hero.overline}</Typography>
+              <Typography variant="h1" sx={{ fontSize: { xs: '2.25rem', md: '3.25rem' }, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.text.primary, mb: 2.5, maxWidth: 600 }}>{hero.title}</Typography>
               <Typography sx={{ color: colors.text.secondary, fontSize: { xs: '1rem', md: '1.05rem' }, lineHeight: 1.75, maxWidth: 480, fontFamily: '"Inter",sans-serif' }}>
-                Whether you&apos;re a researcher, developer, potential partner, or just curious about our work — we would like to hear from you.
+                {hero.description}
               </Typography>
             </motion.div>
           </Container>
@@ -100,34 +104,40 @@ export default function Contact() {
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1.6fr' }, gap: { xs: 8, lg: 10 }, alignItems: 'start' }}>
               {/* Info */}
               <AnimatedReveal>
-                <Typography variant="h3" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' }, fontWeight: 600, letterSpacing: '-0.02em', color: colors.text.primary, mb: 3 }}>Get in touch.</Typography>
+                <Typography variant="h3" sx={{ fontSize: { xs: '1.25rem', md: '1.5rem' }, fontWeight: 600, letterSpacing: '-0.02em', color: colors.text.primary, mb: 3 }}>{info.heading}</Typography>
                 <Typography sx={{ color: colors.text.secondary, fontSize: '0.925rem', lineHeight: 1.75, fontFamily: '"Inter",sans-serif', mb: 4 }}>
-                  We are a small team — so you will be speaking directly to the people working on Yali Labs, not a support bot.
+                  {info.text}
                 </Typography>
-                <Box component="a" href="mailto:contact@yalilabs.com"
-                  sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2.5, border: `1px solid ${colors.border.subtle}`, borderRadius: '8px', backgroundColor: colors.inkLight, textDecoration: 'none', mb: 3, transition: 'all 0.2s ease', '&:hover': { borderColor: colors.accent, backgroundColor: colors.accentFaint } }}>
-                  <Box sx={{ width: 36, height: 36, borderRadius: '6px', backgroundColor: colors.accentFaint, border: `1px solid ${colors.accent}33`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <EmailIcon sx={{ fontSize: 16, color: colors.accent }} />
+                {info.email && (
+                  <Box component="a" href={`mailto:${info.email}`}
+                    sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2.5, border: `1px solid ${colors.border.subtle}`, borderRadius: '8px', backgroundColor: colors.inkLight, textDecoration: 'none', mb: 3, transition: 'all 0.2s ease', '&:hover': { borderColor: colors.accent, backgroundColor: colors.accentFaint } }}>
+                    <Box sx={{ width: 36, height: 36, borderRadius: '6px', backgroundColor: colors.accentFaint, border: `1px solid ${colors.accent}33`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <EmailIcon sx={{ fontSize: 16, color: colors.accent }} />
+                    </Box>
+                    <Box>
+                      <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10px', color: colors.text.tertiary, letterSpacing: '0.06em', textTransform: 'uppercase', mb: 0.25 }}>{info.emailLabel}</Typography>
+                      <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '13px', color: colors.accent }}>{info.email}</Typography>
+                    </Box>
                   </Box>
-                  <Box>
-                    <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10px', color: colors.text.tertiary, letterSpacing: '0.06em', textTransform: 'uppercase', mb: 0.25 }}>Email us directly</Typography>
-                    <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '13px', color: colors.accent }}>contact@yalilabs.com</Typography>
-                  </Box>
-                </Box>
-                <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10px', color: colors.text.tertiary, letterSpacing: '0.08em', textTransform: 'uppercase', mb: 1.5 }}>Good reasons to reach out</Typography>
-                {['Research collaboration','Developer questions about Alta Tokenizer','Partnership enquiries','Press & media','General questions'].map((reason, i) => (
-                  <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                    <Box sx={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: colors.stone600, flexShrink: 0 }} />
-                    <Typography sx={{ fontFamily: '"Inter",sans-serif', fontSize: '13.5px', color: colors.text.secondary }}>{reason}</Typography>
-                  </Box>
-                ))}
+                )}
+                {(info.reasons || []).length > 0 && (
+                  <>
+                    <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10px', color: colors.text.tertiary, letterSpacing: '0.08em', textTransform: 'uppercase', mb: 1.5 }}>{info.reasonsLabel}</Typography>
+                    {info.reasons.map((reason, i) => (
+                      <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Box sx={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: colors.stone600, flexShrink: 0 }} />
+                        <Typography sx={{ fontFamily: '"Inter",sans-serif', fontSize: '13.5px', color: colors.text.secondary }}>{reason}</Typography>
+                      </Box>
+                    ))}
+                  </>
+                )}
               </AnimatedReveal>
 
               {/* Form */}
               <AnimatedReveal delay={0.15}>
                 <Box sx={{ p: { xs: 3, md: 4 }, border: `1px solid ${colors.border.subtle}`, borderRadius: '8px', backgroundColor: colors.inkLight }}>
-                  <Typography sx={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 600, fontSize: '1rem', color: colors.text.primary, mb: 3 }}>Send us a message</Typography>
-                  <ContactForm />
+                  <Typography sx={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 600, fontSize: '1rem', color: colors.text.primary, mb: 3 }}>{form.title}</Typography>
+                  <ContactForm copy={form} email={info.email} />
                 </Box>
               </AnimatedReveal>
             </Box>

@@ -2,12 +2,7 @@ import { useState } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useColors } from '../../theme/ThemeContext';
-
-const DEMO_SENTENCES = [
-  { text: 'Nagiye gusura abanyeshuri.', tokens: ['Na', 'gi', 'ye', ' gu', 'su', 'ra', ' aba', 'nye', 'shu', 'ri', '.'], ids: [78, 1760, 203, 5256, 892, 451, 1845, 634, 907, 46, 12], chars: 26 },
-  { text: 'Umugabo arakorana neza.', tokens: ['Uma', 'ga', 'bo', ' ara', 'ko', 'ra', 'na', ' ne', 'za', '.'], ids: [234, 523, 87, 1023, 412, 451, 289, 876, 102, 12], chars: 22 },
-  { text: 'Amakuru yanyu meza.', tokens: ['Ama', 'ku', 'ru', ' yan', 'yu', ' me', 'za', '.'], ids: [445, 234, 67, 891, 203, 567, 102, 12], chars: 19 },
-];
+import { useModule } from '../../content/useContent';
 
 const labelSx = (colors) => ({
   fontFamily: '"IBM Plex Mono",monospace',
@@ -21,17 +16,22 @@ const labelSx = (colors) => ({
 /** TokenizerDemo — interactive Alta Tokenizer playground used as its "how it works" visual. */
 export default function TokenizerDemo() {
   const colors = useColors();
+  const { tokenizerDemo } = useModule('products');
+  const sentences = (tokenizerDemo.sentences || []).filter((s) => s.text && s.tokens?.length);
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [showTokens, setShowTokens] = useState(true);
-  const demo = DEMO_SENTENCES[selectedIdx];
-  const ratio = (demo.chars / demo.tokens.length).toFixed(2);
+
+  if (sentences.length === 0) return null;
+
+  const demo = sentences[Math.min(selectedIdx, sentences.length - 1)];
+  const chars = demo.text.length;
+  const ratio = (chars / demo.tokens.length).toFixed(2);
 
   return (
     <Box sx={{ width: '100%' }}>
-      {/* Example picker */}
-      <Typography sx={labelSx(colors)}>Select example</Typography>
+      <Typography sx={labelSx(colors)}>{tokenizerDemo.selectLabel}</Typography>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.5, mb: { xs: 4, md: 5 } }}>
-        {DEMO_SENTENCES.map((s, i) => {
+        {sentences.map((s, i) => {
           const isActive = i === selectedIdx;
           return (
             <Box
@@ -69,9 +69,8 @@ export default function TokenizerDemo() {
         })}
       </Box>
 
-      {/* Output */}
       <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
-        <Typography sx={{ ...labelSx(colors), mb: 0 }}>Output — {showTokens ? 'tokens' : 'token IDs'}</Typography>
+        <Typography sx={{ ...labelSx(colors), mb: 0 }}>{tokenizerDemo.outputLabel} — {showTokens ? 'tokens' : 'token IDs'}</Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
           {['Tokens', 'IDs'].map(label => {
             const isActive = showTokens ? label === 'Tokens' : label === 'IDs';
@@ -124,14 +123,13 @@ export default function TokenizerDemo() {
           <Typography
             sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: { xs: '14px', md: '15px' }, color: colors.accent, wordBreak: 'break-word', lineHeight: 1.9 }}
           >
-            [{demo.ids.join(', ')}]
+            [{(demo.ids || []).join(', ')}]
           </Typography>
         )}
       </Box>
 
-      {/* Stats */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: { xs: 4, md: 6 } }}>
-        {[{ label: 'Characters', value: demo.chars }, { label: 'Tokens', value: demo.tokens.length }, { label: 'Compression', value: `${ratio}×` }].map(({ label, value }) => (
+        {[{ label: 'Characters', value: chars }, { label: 'Tokens', value: demo.tokens.length }, { label: 'Compression', value: `${ratio}×` }].map(({ label, value }) => (
           <Box key={label}>
             <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10.5px', color: colors.text.tertiary, letterSpacing: '0.08em', textTransform: 'uppercase', mb: 0.75 }}>
               {label}

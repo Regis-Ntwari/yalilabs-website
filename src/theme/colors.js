@@ -73,53 +73,58 @@ export const getDarkColors = () => ({
   isDark: true,
 });
 
+/**
+ * Light mode is built outward from pure white. Every other surface is a very
+ * faint cool tint of white (a whisper of the brand blue), and borders / grays
+ * are slate-tinted so they read as "white with depth" rather than flat grey.
+ */
 export const getLightColors = () => ({
-  // Surfaces
-  ink:        '#f5f6f8',
-  inkLight:   '#ffffff',
-  inkMid:     '#eceef1',
-  inkSurface: '#e4e6ea',
-  inkElevated:'#d8dade',
+  // Surfaces — white base, then progressively cooler tints
+  ink:        '#ffffff',
+  inkLight:   '#f7f9fc',   // alternating sections, cards on white
+  inkMid:     '#f0f4f9',
+  inkSurface: '#e9eff6',   // chips, pills, inset panels
+  inkElevated:'#dde5ef',
 
-  // Neutral grays
-  stone900: '#f0f0ed',
-  stone800: '#e0e0dd',
-  stone700: '#b4b4b0',
-  stone600: '#909090',
-  stone500: '#6e6e6e',
-  stone400: '#555555',
-  stone300: '#333333',
-  stone200: '#1a1a1a',
-  stone100: '#0d0d0d',
-  stone50:  '#080808',
+  // Neutral grays — slate-tinted so they harmonise with the blue accent
+  stone900: '#f3f6fa',
+  stone800: '#e4e9f0',
+  stone700: '#b9c2ce',
+  stone600: '#8d97a7',
+  stone500: '#6a7488',
+  stone400: '#4d576a',
+  stone300: '#323b4c',
+  stone200: '#1c2330',
+  stone100: '#10151e',
+  stone50:  '#0a0e15',
 
-  // Accent — deeper blue on light
+  // Accent — deeper blue on white
   accent:       blue[500],          // #0077e6
   accentDim:    blue[700],          // #004080
   accentBright: blue[400],          // #1a9fff
-  accentFaint:  'rgba(0,119,230,0.07)',
-  accentSubtle: 'rgba(0,119,230,0.13)',
+  accentFaint:  'rgba(0,119,230,0.06)',
+  accentSubtle: 'rgba(0,119,230,0.12)',
 
-  // Text
+  // Text — near-black with a cool undertone
   text: {
-    primary:   '#0f1117',
-    secondary: '#4a4a55',
-    tertiary:  '#888896',
+    primary:   '#0f1320',
+    secondary: '#4b5566',
+    tertiary:  '#8b94a5',
     accent:    blue[500],
   },
 
-  // Borders
+  // Borders — slate-tinted translucent lines blend into the white
   border: {
-    subtle:  'rgba(0,0,0,0.07)',
-    default: 'rgba(0,0,0,0.13)',
-    strong:  'rgba(0,0,0,0.22)',
+    subtle:  'rgba(15,23,42,0.08)',
+    default: 'rgba(15,23,42,0.14)',
+    strong:  'rgba(15,23,42,0.24)',
   },
 
   // Navbar backdrop
-  navBg: 'rgba(245,246,248,0.93)',
+  navBg: 'rgba(255,255,255,0.86)',
 
   // Dot-grid color
-  dotColor: '#c8c8c5',
+  dotColor: '#d6dde7',
 
   // Blue reference
   blue,

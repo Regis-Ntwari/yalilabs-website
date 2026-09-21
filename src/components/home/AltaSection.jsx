@@ -3,12 +3,11 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { Link } from 'react-router-dom';
 import { useColors } from '../../theme/ThemeContext';
+import { useModule } from '../../content/useContent';
+import ContentIcon from '../../content/ContentIcon';
+import { productHref } from '../../content/helpers';
 import SectionHeader from '../common/SectionHeader';
 import AnimatedReveal from '../common/AnimatedReveal';
-import { products } from '../../data/products';
-
-// Homepage spotlights the two most mature products; the rest live on /products.
-const FEATURED_COUNT = 2;
 
 function StatusBadge({ badge, badgeActive }) {
   const colors = useColors();
@@ -33,9 +32,8 @@ function StatusBadge({ badge, badgeActive }) {
   );
 }
 
-function ProductCard({ product, index }) {
+function ProductCard({ product, index, learnMoreLabel }) {
   const colors = useColors();
-  const Icon = product.icon;
 
   return (
     <AnimatedReveal delay={index * 0.1}>
@@ -54,14 +52,13 @@ function ProductCard({ product, index }) {
           '&:hover': {
             borderColor: colors.border.default,
             transform: 'translateY(-3px)',
-            boxShadow: `0 16px 40px ${colors.isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.08)'}`,
+            boxShadow: `0 16px 40px ${colors.isDark ? 'rgba(0,0,0,0.4)' : 'rgba(15,23,42,0.08)'}`,
           },
           '&::before': product.badgeActive
             ? { content: '""', position: 'absolute', top: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, ${colors.accent}, transparent)` }
             : {},
         }}
       >
-        {/* Header row */}
         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 3 }}>
           <Box
             sx={{
@@ -76,25 +73,22 @@ function ProductCard({ product, index }) {
               flexShrink: 0,
             }}
           >
-            <Icon sx={{ fontSize: 26, color: product.badgeActive ? colors.accent : colors.text.tertiary }} />
+            <ContentIcon name={product.icon} sx={{ fontSize: 26, color: product.badgeActive ? colors.accent : colors.text.tertiary }} />
           </Box>
           <StatusBadge badge={product.badge} badgeActive={product.badgeActive} />
         </Box>
 
-        {/* Title */}
         <Typography variant="h4" sx={{ fontSize: { xs: '1.25rem', md: '1.4rem' }, fontWeight: 600, letterSpacing: '-0.02em', color: colors.text.primary, mb: 1.5 }}>
           {product.title}
         </Typography>
 
-        {/* Description */}
         <Typography sx={{ color: colors.text.secondary, fontSize: '0.9rem', lineHeight: 1.75, fontFamily: '"Inter", sans-serif', mb: 3, flex: 1 }}>
           {product.description}
         </Typography>
 
-        {/* Feature pills */}
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 3.5 }}>
-          {product.features.slice(0, 4).map((f) => (
-            <Box key={f.title} sx={{ display: 'flex', alignItems: 'center', gap: 0.6, px: 1, py: 0.3, backgroundColor: colors.inkSurface, border: `1px solid ${colors.border.subtle}`, borderRadius: '4px' }}>
+          {(product.features || []).slice(0, 4).map((f, i) => (
+            <Box key={`${f.title}-${i}`} sx={{ display: 'flex', alignItems: 'center', gap: 0.6, px: 1, py: 0.3, backgroundColor: colors.inkSurface, border: `1px solid ${colors.border.subtle}`, borderRadius: '4px' }}>
               <Box sx={{ width: 3, height: 3, borderRadius: '50%', backgroundColor: colors.stone600, flexShrink: 0 }} />
               <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '10.5px', color: colors.text.tertiary, letterSpacing: '0.02em' }}>
                 {f.title}
@@ -103,10 +97,9 @@ function ProductCard({ product, index }) {
           ))}
         </Box>
 
-        {/* CTA row */}
         <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mt: 'auto' }}>
-          <Button component={Link} to={product.href} variant="outlined" size="small" endIcon={<ArrowRightAltIcon sx={{ fontSize: '14px !important' }} />} sx={{ fontSize: '13px' }}>
-            Learn more
+          <Button component={Link} to={productHref(product)} variant="outlined" size="small" endIcon={<ArrowRightAltIcon sx={{ fontSize: '14px !important' }} />} sx={{ fontSize: '13px' }}>
+            {learnMoreLabel}
           </Button>
           {product.externalHref && (
             <Button component="a" href={product.externalHref} target="_blank" rel="noopener noreferrer" variant="text" size="small" endIcon={<ArrowOutwardIcon sx={{ fontSize: '12px !important' }} />} sx={{ fontSize: '13px', color: colors.text.tertiary }}>
@@ -121,7 +114,11 @@ function ProductCard({ product, index }) {
 
 export default function AltaSection() {
   const colors = useColors();
-  const featured = products.slice(0, FEATURED_COUNT);
+  const { alta } = useModule('home');
+  const { catalog } = useModule('products');
+  const items = catalog.items || [];
+  const flagged = items.filter((p) => p.featured);
+  const featured = flagged.length > 0 ? flagged : items.slice(0, 2);
 
   return (
     <Box
@@ -134,27 +131,20 @@ export default function AltaSection() {
       }}
     >
       <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
-        {/* Section intro */}
         <AnimatedReveal>
-          <SectionHeader
-            id="alta-heading"
-            heading="Our technology, built layer by layer."
-            description="Alta is Yali Labs' AI technology platform for African languages — a set of interconnected tools and models, each building on the last."
-          />
+          <SectionHeader id="alta-heading" heading={alta.heading} description={alta.description} />
         </AnimatedReveal>
 
-        {/* Two featured products */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 3, mt: { xs: 6, md: 8 } }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: featured.length === 1 ? '1fr' : '1fr 1fr' }, gap: 3, mt: { xs: 6, md: 8 } }}>
           {featured.map((p, i) => (
-            <ProductCard key={p.id} product={p} index={i} />
+            <ProductCard key={p.id} product={p} index={i} learnMoreLabel={alta.learnMoreLabel || 'Learn more'} />
           ))}
         </Box>
 
-        {/* View more */}
         <AnimatedReveal delay={0.15}>
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: { xs: 5, md: 6 } }}>
             <Button component={Link} to="/products" variant="outlined" size="large" endIcon={<ArrowRightAltIcon />}>
-              View all products
+              {alta.buttonLabel}
             </Button>
           </Box>
         </AnimatedReveal>

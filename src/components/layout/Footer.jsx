@@ -1,25 +1,27 @@
 import { Box, Container, Typography, Link as MuiLink, Divider, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { useColors } from '../../theme/ThemeContext';
+import { useModule } from '../../content/useContent';
+import { productHref } from '../../content/helpers';
+import { getSocialIcon } from '../../content/socials';
 
-const footerLinks = {
-  Explore: [
-    { label: 'Products',  href: '/products' },
-  ],
-  Company: [
-    { label: 'About',   href: '/company/about-us' },
-    { label: 'Team',    href: '/company/our-team' },
-    { label: 'Contact', href: '/contact-us' },
-  ],
-  Products: [
-    { label: 'Alta Tokenizer', href: '/products?product=tokenizer' },
-    { label: 'Alta Model',     href: '/products?product=model' },
-    { label: 'AltaScribe',     href: '/products?product=scribe' },
-    { label: 'Alta Foundry',   href: '/products?product=foundry' },
-  ],
-};
+const isInternal = (href = '') => href.startsWith('/');
+
+function FooterLink({ href, children }) {
+  const colors = useColors();
+  const sx = {
+    color: colors.text.secondary,
+    fontSize: '13.5px',
+    fontFamily: '"Inter",sans-serif',
+    transition: 'color 0.15s ease',
+    '&:hover': { color: colors.text.primary, textDecoration: 'none' },
+  };
+  return isInternal(href) ? (
+    <MuiLink component={Link} to={href} sx={sx}>{children}</MuiLink>
+  ) : (
+    <MuiLink href={href} target="_blank" rel="noopener noreferrer" sx={sx}>{children}</MuiLink>
+  );
+}
 
 function FooterLinkGroup({ title, links }) {
   const colors = useColors();
@@ -29,21 +31,8 @@ function FooterLinkGroup({ title, links }) {
         {title}
       </Typography>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {links.map(link => (
-          <MuiLink
-            key={link.href}
-            component={Link}
-            to={link.href}
-            sx={{
-              color: colors.text.secondary,
-              fontSize: '13.5px',
-              fontFamily: '"Inter",sans-serif',
-              transition: 'color 0.15s ease',
-              '&:hover': { color: colors.text.primary, textDecoration: 'none' },
-            }}
-          >
-            {link.label}
-          </MuiLink>
+        {links.map((link, i) => (
+          <FooterLink key={`${link.href}-${i}`} href={link.href}>{link.label}</FooterLink>
         ))}
       </Box>
     </Box>
@@ -52,6 +41,18 @@ function FooterLinkGroup({ title, links }) {
 
 export default function Footer() {
   const colors = useColors();
+  const { brand, links, bottom } = useModule('footer');
+  const { catalog } = useModule('products');
+
+  const groups = [...(links.groups || [])];
+  if (links.showProducts) {
+    // Product links follow the catalogue so renames in the admin propagate here.
+    groups.push({
+      title: links.productsTitle || 'Products',
+      items: (catalog.items || []).map((p) => ({ label: p.title, href: productHref(p) })),
+    });
+  }
+  const columns = Math.max(groups.length, 1);
 
   return (
     <Box
@@ -63,7 +64,7 @@ export default function Footer() {
           sx={{
             py: { xs: 6, md: 10 },
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: '2fr 1fr 1fr 1fr' },
+            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: `2fr repeat(${columns}, 1fr)` },
             gap: { xs: 5, md: 4 },
           }}
         >
@@ -85,33 +86,37 @@ export default function Footer() {
                 Yali Labs
               </Typography>
             </Box>
-            <Typography sx={{ color: colors.text.secondary, fontSize: '13.5px', lineHeight: 1.7, maxWidth: 260, fontFamily: '"Inter",sans-serif', mb: 3 }}>
-              Building language technology for African languages. Starting with Kinyarwanda.
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              {[
-                { href: 'https://github.com/yalilabs', icon: <GitHubIcon sx={{ fontSize: 16 }} />, label: 'GitHub' },
-                { href: 'https://www.linkedin.com/company/yalilabs', icon: <LinkedInIcon sx={{ fontSize: 16 }} />, label: 'LinkedIn' },
-              ].map(s => (
-                <IconButton
-                  key={s.label}
-                  component="a" href={s.href} target="_blank" rel="noopener noreferrer"
-                  aria-label={`Yali Labs on ${s.label}`} size="small"
-                  sx={{
-                    color: colors.text.tertiary,
-                    border: `1px solid ${colors.border.subtle}`,
-                    borderRadius: '6px', p: 0.75,
-                    '&:hover': { color: colors.text.primary, borderColor: colors.border.default },
-                  }}
-                >
-                  {s.icon}
-                </IconButton>
-              ))}
-            </Box>
+            {brand.tagline && (
+              <Typography sx={{ color: colors.text.secondary, fontSize: '13.5px', lineHeight: 1.7, maxWidth: 260, fontFamily: '"Inter",sans-serif', mb: 3 }}>
+                {brand.tagline}
+              </Typography>
+            )}
+            {brand.socials?.length > 0 && (
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                {brand.socials.map((s, i) => {
+                  const Icon = getSocialIcon(s.platform);
+                  return (
+                    <IconButton
+                      key={`${s.platform}-${i}`}
+                      component="a" href={s.href} target="_blank" rel="noopener noreferrer"
+                      aria-label={`Yali Labs on ${s.label || s.platform}`} size="small"
+                      sx={{
+                        color: colors.text.tertiary,
+                        border: `1px solid ${colors.border.subtle}`,
+                        borderRadius: '6px', p: 0.75,
+                        '&:hover': { color: colors.text.primary, borderColor: colors.border.default },
+                      }}
+                    >
+                      <Icon sx={{ fontSize: 16 }} />
+                    </IconButton>
+                  );
+                })}
+              </Box>
+            )}
           </Box>
 
-          {Object.entries(footerLinks).map(([title, links]) => (
-            <FooterLinkGroup key={title} title={title} links={links} />
+          {groups.map((g, i) => (
+            <FooterLinkGroup key={`${g.title}-${i}`} title={g.title} links={g.items || []} />
           ))}
         </Box>
 
@@ -128,10 +133,10 @@ export default function Footer() {
           }}
         >
           <Typography sx={{ color: colors.text.tertiary, fontSize: '12.5px', fontFamily: '"IBM Plex Mono",monospace', letterSpacing: '0.02em' }}>
-            © 2026 Yali Labs. All rights reserved.
+            {bottom.copyright}
           </Typography>
           <Typography sx={{ color: colors.text.tertiary, fontSize: '12.5px', fontFamily: '"IBM Plex Mono",monospace', letterSpacing: '0.02em' }}>
-            Kigali, Rwanda
+            {bottom.location}
           </Typography>
         </Box>
       </Container>

@@ -4,73 +4,17 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { motion } from 'framer-motion';
 import { useColors } from '../theme/ThemeContext';
+import { useModule } from '../content/useContent';
+import { initialsFor } from '../content/helpers';
 import AnimatedReveal from '../components/common/AnimatedReveal';
-
-/**
- * TEAM REGISTRY
- * ─────────────
- * isHead: true  → rendered in the "Leadership" row (large cards, full width on their row)
- * isHead: false → rendered in the "Team" grid below
- *
- * photo: path to image (future) — currently shows styled initials avatar
- * linkedin: optional LinkedIn profile URL
- */
-const team = [
-  {
-    name: 'Murwanashyaka Philbert',
-    initials: 'MP',
-    role: 'Head of Business Development',
-    area: 'Business & Strategy',
-    isHead: true,
-    photo: null,
-    linkedin: null,
-    description:
-      "Drives Yali Labs' partnerships, strategy, and ecosystem development. Works to connect our research to real-world opportunities and partners across the African tech landscape.",
-  },
-  {
-    name: 'Niyibizi Schadrack',
-    initials: 'NS',
-    role: 'Head of AI',
-    area: 'Artificial Intelligence',
-    isHead: true,
-    photo: null,
-    linkedin: null,
-    description:
-      'Leads the AI research and model development work at Yali Labs. Co-founder with deep expertise in language models, transformer architectures, and low-resource language AI.',
-  },
-  {
-    name: 'Hirwa Gael',
-    initials: 'HG',
-    role: 'Head of Data Engineering',
-    area: 'Data & Infrastructure',
-    isHead: true,
-    photo: null,
-    linkedin: null,
-    description:
-      "Responsible for the data pipelines, corpus curation, and infrastructure that underpin Yali Labs' model training. Co-founder and the foundation that model quality is built on.",
-  },
-  {
-    name: 'Uwisoneye Yvette',
-    initials: 'UY',
-    role: 'Data Scientist',
-    area: 'Data Science',
-    isHead: false,
-    photo: null,
-    linkedin: null,
-    description:
-      'Brings data science expertise to the team, working across data analysis, model evaluation, and research tasks that support the broader Alta ecosystem.',
-  },
-];
-
-const heads = team.filter((m) => m.isHead);
-const staff = team.filter((m) => !m.isHead);
 
 /* ─── Avatar ─────────────────────────────────────────────────────────────── */
 function Avatar({ member, size = 96 }) {
   const colors = useColors();
+  const initials = (member.initials || initialsFor(member.name)).slice(0, 2);
 
   // Derive a hue from the initials for a unique-but-consistent tint
-  const hue = (member.initials.charCodeAt(0) * 37 + member.initials.charCodeAt(1) * 13) % 360;
+  const hue = (initials.charCodeAt(0) * 37 + (initials.charCodeAt(1) || 0) * 13) % 360;
   const bgLight = `hsla(${hue},60%,94%,1)`;
   const bgDark  = `hsla(${hue},35%,18%,1)`;
 
@@ -110,10 +54,32 @@ function Avatar({ member, size = 96 }) {
             userSelect: 'none',
           }}
         >
-          {member.initials}
+          {initials}
         </Typography>
       )}
     </Box>
+  );
+}
+
+function LinkedInButton({ href, sx }) {
+  const colors = useColors();
+  return (
+    <Button
+      component="a"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      size="small"
+      startIcon={<LinkedInIcon sx={{ fontSize: '14px !important' }} />}
+      sx={{
+        fontSize: '12px',
+        color: colors.text.tertiary,
+        '&:hover': { color: colors.accent, backgroundColor: 'transparent' },
+        ...sx,
+      }}
+    >
+      LinkedIn
+    </Button>
   );
 }
 
@@ -139,10 +105,9 @@ function HeadCard({ member, index }) {
           transition: 'all 0.25s ease',
           '&:hover': {
             borderColor: colors.accent + '44',
-            boxShadow: `0 12px 36px ${colors.isDark ? 'rgba(0,0,0,0.45)' : 'rgba(0,0,0,0.07)'}`,
+            boxShadow: `0 12px 36px ${colors.isDark ? 'rgba(0,0,0,0.45)' : 'rgba(15,23,42,0.07)'}`,
             '& .member-avatar': { borderColor: colors.accent + '88' },
           },
-          // Accent top-border line
           '&::before': {
             content: '""',
             position: 'absolute',
@@ -157,87 +122,33 @@ function HeadCard({ member, index }) {
         <Avatar member={member} size={88} />
 
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1, width: '100%', minWidth: 0 }}>
-          {/* Name + area */}
           <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
             <Typography
               variant="h3"
-              sx={{
-                fontSize: { xs: '1.15rem', md: '1.3rem' },
-                fontWeight: 700,
-                letterSpacing: '-0.025em',
-                color: colors.text.primary,
-              }}
+              sx={{ fontSize: { xs: '1.15rem', md: '1.3rem' }, fontWeight: 700, letterSpacing: '-0.025em', color: colors.text.primary }}
             >
               {member.name}
             </Typography>
-            <Box
-              sx={{
-                px: 1.25,
-                py: 0.3,
-                border: `1px solid ${colors.border.default}`,
-                borderRadius: '4px',
-                backgroundColor: colors.inkSurface,
-              }}
-            >
-              <Typography
-                sx={{
-                  fontFamily: '"IBM Plex Mono", monospace',
-                  fontSize: '9.5px',
-                  color: colors.text.tertiary,
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {member.area}
-              </Typography>
-            </Box>
+            {member.area && (
+              <Box sx={{ px: 1.25, py: 0.3, border: `1px solid ${colors.border.default}`, borderRadius: '4px', backgroundColor: colors.inkSurface }}>
+                <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '9.5px', color: colors.text.tertiary, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                  {member.area}
+                </Typography>
+              </Box>
+            )}
           </Box>
 
-          {/* Role */}
-          <Typography
-            sx={{
-              fontFamily: '"Space Grotesk", sans-serif',
-              fontWeight: 600,
-              fontSize: '13px',
-              color: colors.accent,
-              mb: 1.5,
-              letterSpacing: '-0.005em',
-            }}
-          >
+          <Typography sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 600, fontSize: '13px', color: colors.accent, mb: 1.5, letterSpacing: '-0.005em' }}>
             {member.role}
           </Typography>
 
-          {/* Description */}
-          <Typography
-            sx={{
-              color: colors.text.secondary,
-              fontSize: '0.875rem',
-              lineHeight: 1.75,
-              fontFamily: '"Inter", sans-serif',
-            }}
-          >
+          <Typography sx={{ color: colors.text.secondary, fontSize: '0.875rem', lineHeight: 1.75, fontFamily: '"Inter", sans-serif' }}>
             {member.description}
           </Typography>
 
-          {/* LinkedIn — shown only if provided */}
           {member.linkedin && (
             <Box sx={{ mt: 'auto', pt: 2 }}>
-              <Button
-                component="a"
-                href={member.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                size="small"
-                startIcon={<LinkedInIcon sx={{ fontSize: '14px !important' }} />}
-                sx={{
-                  fontSize: '12px',
-                  color: colors.text.tertiary,
-                  px: 0,
-                  '&:hover': { color: colors.accent, backgroundColor: 'transparent' },
-                }}
-              >
-                LinkedIn
-              </Button>
+              <LinkedInButton href={member.linkedin} sx={{ px: 0 }} />
             </Box>
           )}
         </Box>
@@ -268,7 +179,7 @@ function StaffCard({ member, index }) {
           '&:hover': {
             borderColor: colors.border.default,
             transform: 'translateY(-3px)',
-            boxShadow: `0 10px 28px ${colors.isDark ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.06)'}`,
+            boxShadow: `0 10px 28px ${colors.isDark ? 'rgba(0,0,0,0.4)' : 'rgba(15,23,42,0.06)'}`,
             '& .member-avatar': { borderColor: colors.accent + '66' },
           },
         }}
@@ -276,84 +187,30 @@ function StaffCard({ member, index }) {
         <Avatar member={member} size={80} />
 
         <Box>
-          <Typography
-            variant="h4"
-            sx={{
-              fontSize: '1rem',
-              fontWeight: 700,
-              letterSpacing: '-0.02em',
-              color: colors.text.primary,
-              mb: 0.5,
-            }}
-          >
+          <Typography variant="h4" sx={{ fontSize: '1rem', fontWeight: 700, letterSpacing: '-0.02em', color: colors.text.primary, mb: 0.5 }}>
             {member.name}
           </Typography>
 
-          <Typography
-            sx={{
-              fontFamily: '"Space Grotesk", sans-serif',
-              fontWeight: 600,
-              fontSize: '12px',
-              color: colors.accent,
-              mb: 1,
-            }}
-          >
+          <Typography sx={{ fontFamily: '"Space Grotesk", sans-serif', fontWeight: 600, fontSize: '12px', color: colors.accent, mb: 1 }}>
             {member.role}
           </Typography>
 
-          <Box
-            sx={{
-              display: 'inline-flex',
-              px: 1.25,
-              py: 0.3,
-              border: `1px solid ${colors.border.subtle}`,
-              borderRadius: '4px',
-              backgroundColor: colors.inkSurface,
-              mb: 1.5,
-            }}
-          >
-            <Typography
-              sx={{
-                fontFamily: '"IBM Plex Mono", monospace',
-                fontSize: '9.5px',
-                color: colors.text.tertiary,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-              }}
-            >
-              {member.area}
-            </Typography>
-          </Box>
+          {member.area && (
+            <Box sx={{ display: 'inline-flex', px: 1.25, py: 0.3, border: `1px solid ${colors.border.subtle}`, borderRadius: '4px', backgroundColor: colors.inkSurface, mb: 1.5 }}>
+              <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '9.5px', color: colors.text.tertiary, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                {member.area}
+              </Typography>
+            </Box>
+          )}
 
-          <Typography
-            sx={{
-              color: colors.text.secondary,
-              fontSize: '0.82rem',
-              lineHeight: 1.7,
-              fontFamily: '"Inter", sans-serif',
-            }}
-          >
+          <Typography sx={{ color: colors.text.secondary, fontSize: '0.82rem', lineHeight: 1.7, fontFamily: '"Inter", sans-serif' }}>
             {member.description}
           </Typography>
         </Box>
 
         {member.linkedin && (
           <Box sx={{ mt: 'auto', pt: 1 }}>
-            <Button
-              component="a"
-              href={member.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              size="small"
-              startIcon={<LinkedInIcon sx={{ fontSize: '14px !important' }} />}
-              sx={{
-                fontSize: '12px',
-                color: colors.text.tertiary,
-                '&:hover': { color: colors.accent, backgroundColor: 'transparent' },
-              }}
-            >
-              LinkedIn
-            </Button>
+            <LinkedInButton href={member.linkedin} />
           </Box>
         )}
       </Box>
@@ -381,6 +238,10 @@ function DotGrid() {
 /* ─── Page ───────────────────────────────────────────────────────────────── */
 export default function Team() {
   const colors = useColors();
+  const { hero, members, join } = useModule('team');
+  const all = members.items || [];
+  const heads = all.filter((m) => m.isHead);
+  const staff = all.filter((m) => !m.isHead);
 
   return (
     <>
@@ -388,129 +249,60 @@ export default function Team() {
       <Box component="main">
 
         {/* ── Hero ── */}
-        <Box
-          sx={{
-            borderBottom: `1px solid ${colors.border.subtle}`,
-            py: { xs: 10, md: 14 },
-            backgroundColor: colors.ink,
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
+        <Box sx={{ borderBottom: `1px solid ${colors.border.subtle}`, py: { xs: 10, md: 14 }, backgroundColor: colors.ink, position: 'relative', overflow: 'hidden' }}>
           <DotGrid />
           <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 }, position: 'relative', zIndex: 1 }}>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <Typography
-                variant="overline"
-                sx={{ color: colors.accent, display: 'block', mb: 2, letterSpacing: '0.12em', fontSize: '0.68rem' }}
-              >
-                Our Team
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
+              <Typography variant="overline" sx={{ color: colors.accent, display: 'block', mb: 2, letterSpacing: '0.12em', fontSize: '0.68rem' }}>
+                {hero.overline}
               </Typography>
-              <Typography
-                variant="h1"
-                sx={{
-                  fontSize: { xs: '2.25rem', md: '3.25rem' },
-                  fontWeight: 600,
-                  letterSpacing: '-0.03em',
-                  lineHeight: 1.1,
-                  color: colors.text.primary,
-                  mb: 2.5,
-                  maxWidth: 580,
-                }}
-              >
-                The people building African AI.
+              <Typography variant="h1" sx={{ fontSize: { xs: '2.25rem', md: '3.25rem' }, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.text.primary, mb: 2.5, maxWidth: 580 }}>
+                {hero.title}
               </Typography>
-              <Typography
-                sx={{
-                  color: colors.text.secondary,
-                  fontSize: { xs: '1rem', md: '1.1rem' },
-                  lineHeight: 1.75,
-                  maxWidth: 520,
-                  fontFamily: '"Inter", sans-serif',
-                }}
-              >
-                A small team of researchers, engineers, and builders working in Kigali, Rwanda. United by a shared mission.
+              <Typography sx={{ color: colors.text.secondary, fontSize: { xs: '1rem', md: '1.1rem' }, lineHeight: 1.75, maxWidth: 520, fontFamily: '"Inter", sans-serif' }}>
+                {hero.description}
               </Typography>
             </motion.div>
           </Container>
         </Box>
 
-        {/* ── Leadership ── */}
+        {/* ── Leadership + Team ── */}
         <Box sx={{ py: { xs: 10, md: 14 }, borderBottom: `1px solid ${colors.border.subtle}` }}>
           <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
-            <AnimatedReveal>
-              <Typography
-                variant="overline"
-                sx={{
-                  fontFamily: '"IBM Plex Mono", monospace',
-                  fontSize: '11px',
-                  color: colors.text.tertiary,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  display: 'block',
-                  mb: 4,
-                }}
-              >
-                Leadership
-              </Typography>
-            </AnimatedReveal>
-
-            {/* One row: every leader gets an equal-width, equal-height card */}
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: {
-                  xs: '1fr',
-                  sm: 'repeat(2, 1fr)',
-                  md: `repeat(${heads.length}, 1fr)`,
-                },
-                gap: 3,
-                alignItems: 'stretch',
-              }}
-            >
-              {heads.map((member, i) => (
-                <HeadCard key={member.name} member={member} index={i} />
-              ))}
-            </Box>
-
-            {/* ── Staff below (only shown if there are non-head members) ── */}
-            {staff.length > 0 && (
+            {heads.length > 0 && (
               <>
                 <AnimatedReveal>
-                  <Typography
-                    variant="overline"
-                    sx={{
-                      fontFamily: '"IBM Plex Mono", monospace',
-                      fontSize: '11px',
-                      color: colors.text.tertiary,
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      display: 'block',
-                      mt: { xs: 8, md: 10 },
-                      mb: 4,
-                    }}
-                  >
-                    Team
+                  <Typography variant="overline" sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '11px', color: colors.text.tertiary, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', mb: 4 }}>
+                    {members.leadershipLabel}
                   </Typography>
                 </AnimatedReveal>
 
                 <Box
                   sx={{
                     display: 'grid',
-                    gridTemplateColumns: {
-                      xs: '1fr',
-                      sm: 'repeat(2, 1fr)',
-                      md: 'repeat(3, 1fr)',
-                    },
+                    gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: `repeat(${Math.min(heads.length, 4)}, 1fr)` },
                     gap: 3,
+                    alignItems: 'stretch',
                   }}
                 >
+                  {heads.map((member, i) => (
+                    <HeadCard key={`${member.name}-${i}`} member={member} index={i} />
+                  ))}
+                </Box>
+              </>
+            )}
+
+            {staff.length > 0 && (
+              <>
+                <AnimatedReveal>
+                  <Typography variant="overline" sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '11px', color: colors.text.tertiary, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', mt: heads.length > 0 ? { xs: 8, md: 10 } : 0, mb: 4 }}>
+                    {members.teamLabel}
+                  </Typography>
+                </AnimatedReveal>
+
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3 }}>
                   {staff.map((member, i) => (
-                    <StaffCard key={member.name} member={member} index={i} />
+                    <StaffCard key={`${member.name}-${i}`} member={member} index={i} />
                   ))}
                 </Box>
               </>
@@ -521,102 +313,39 @@ export default function Team() {
         {/* ── Join CTA ── */}
         <Box sx={{ py: { xs: 10, md: 12 }, backgroundColor: colors.inkLight }}>
           <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-                gap: { xs: 5, md: 8 },
-                alignItems: 'center',
-              }}
-            >
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: { xs: 5, md: 8 }, alignItems: 'center' }}>
               <AnimatedReveal>
-                <Typography
-                  variant="overline"
-                  sx={{ color: colors.accent, display: 'block', mb: 1.5, letterSpacing: '0.12em', fontSize: '0.68rem' }}
-                >
-                  Work with us
+                <Typography variant="overline" sx={{ color: colors.accent, display: 'block', mb: 1.5, letterSpacing: '0.12em', fontSize: '0.68rem' }}>
+                  {join.overline}
                 </Typography>
-                <Typography
-                  variant="h2"
-                  sx={{
-                    fontSize: { xs: '1.75rem', md: '2.25rem' },
-                    fontWeight: 600,
-                    letterSpacing: '-0.025em',
-                    color: colors.text.primary,
-                    mb: 2,
-                  }}
-                >
-                  Interested in African AI?
+                <Typography variant="h2" sx={{ fontSize: { xs: '1.75rem', md: '2.25rem' }, fontWeight: 600, letterSpacing: '-0.025em', color: colors.text.primary, mb: 2 }}>
+                  {join.heading}
                 </Typography>
-                <Typography
-                  sx={{
-                    color: colors.text.secondary,
-                    fontSize: '0.95rem',
-                    lineHeight: 1.75,
-                    fontFamily: '"Inter", sans-serif',
-                    mb: 3,
-                  }}
-                >
-                  We welcome researchers, engineers, linguists, and others who want to contribute to African language AI.
+                <Typography sx={{ color: colors.text.secondary, fontSize: '0.95rem', lineHeight: 1.75, fontFamily: '"Inter", sans-serif', mb: 3 }}>
+                  {join.text}
                 </Typography>
-                <Button component={Link} to="/contact-us" variant="contained" endIcon={<ArrowRightAltIcon />}>
-                  Get in touch
+                <Button component={Link} to={join.buttonHref || '/contact-us'} variant="contained" endIcon={<ArrowRightAltIcon />}>
+                  {join.buttonLabel}
                 </Button>
               </AnimatedReveal>
 
-              <AnimatedReveal delay={0.15}>
-                <Box
-                  sx={{
-                    p: 3,
-                    border: `1px solid ${colors.border.subtle}`,
-                    borderRadius: '12px',
-                    backgroundColor: colors.ink,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontFamily: '"IBM Plex Mono", monospace',
-                      fontSize: '10px',
-                      color: colors.text.tertiary,
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                      mb: 2.5,
-                    }}
-                  >
-                    What we look for
-                  </Typography>
-                  {[
-                    'AI/ML research experience',
-                    'Interest in low-resource languages',
-                    'Curiosity about African linguistics',
-                    'Willingness to build from first principles',
-                    'Ability to work in an early-stage environment',
-                  ].map((item, i) => (
-                    <Box key={i} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.25, mb: 1.5 }}>
-                      <Box
-                        sx={{
-                          width: 4,
-                          height: 4,
-                          borderRadius: '50%',
-                          backgroundColor: colors.accent,
-                          flexShrink: 0,
-                          mt: 0.75,
-                        }}
-                      />
-                      <Typography
-                        sx={{
-                          fontFamily: '"Inter", sans-serif',
-                          fontSize: '13.5px',
-                          color: colors.text.secondary,
-                          lineHeight: 1.6,
-                        }}
-                      >
-                        {item}
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
-              </AnimatedReveal>
+              {(join.lookFor || []).length > 0 && (
+                <AnimatedReveal delay={0.15}>
+                  <Box sx={{ p: 3, border: `1px solid ${colors.border.subtle}`, borderRadius: '12px', backgroundColor: colors.ink }}>
+                    <Typography sx={{ fontFamily: '"IBM Plex Mono", monospace', fontSize: '10px', color: colors.text.tertiary, letterSpacing: '0.08em', textTransform: 'uppercase', mb: 2.5 }}>
+                      {join.lookForLabel}
+                    </Typography>
+                    {join.lookFor.map((item, i) => (
+                      <Box key={i} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.25, mb: 1.5 }}>
+                        <Box sx={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: colors.accent, flexShrink: 0, mt: 0.75 }} />
+                        <Typography sx={{ fontFamily: '"Inter", sans-serif', fontSize: '13.5px', color: colors.text.secondary, lineHeight: 1.6 }}>
+                          {item}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </AnimatedReveal>
+              )}
             </Box>
           </Container>
         </Box>
