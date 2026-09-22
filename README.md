@@ -19,6 +19,25 @@ npm run lint
 - Production: set it in Vercel → Project → Settings → Environment Variables, then redeploy.
 - The Content-Security-Policy in `vercel.json` only allows `connect-src 'self'`. Add the API origin there (e.g. `connect-src 'self' https://api.yalilabs.com`) or requests from the deployed site will be blocked by the browser.
 
+### Demo mode (mock API)
+
+Until the backend exists, the app can run against an in-browser mock of the API (`src/lib/api/mock.js`) with dummy data. It is **on by default whenever `VITE_API_URL` is empty**, so a fresh clone and a Vercel deploy with no API configured both show the admin working. Control it explicitly with:
+
+| `VITE_USE_MOCK_API` | Effect                                                                 |
+| ------------------- | ---------------------------------------------------------------------- |
+| unset               | Mock when `VITE_API_URL` is empty, real API otherwise.                 |
+| `true`              | Always use the mock, even if `VITE_API_URL` is set.                    |
+| `false`             | Never use the mock; without `VITE_API_URL` the admin shows a setup notice. |
+
+Demo accounts (also listed on the login screen in demo mode):
+
+| Email                  | Password       |
+| ---------------------- | -------------- |
+| `admin@yalilabs.com`   | `yalilabs2026` |
+| `editor@yalilabs.com`  | `editor2026`   |
+
+The mock implements the full API contract below. Content starts from a seed (the code defaults with a few edits, so some modules show as **Live** and others as **Default content**) and every save is written to `localStorage`, so edits persist across reloads and are visible on the public site in the same browser. Responses are artificially delayed so loading and saving states are visible. The sidebar shows a **Demo mode** notice with a *Reset demo content* action that returns to the seed.
+
 ## Content admin (`/admin`)
 
 Nothing on the public site links to it. Editors sign in with **email + password**, then edit one module per page:

@@ -8,10 +8,70 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import { motion } from 'framer-motion';
 import { useColors } from '../../theme/ThemeContext';
 import { loginSchema } from '../../lib/api/auth';
-import { isApiConfigured } from '../../lib/api/client';
+import { isApiConfigured, isMockApi } from '../../lib/api/client';
+import { DEMO_ACCOUNTS } from '../../lib/api/mock';
 import { useLogin } from '../hooks/useAuth';
 
 const MONO = '"IBM Plex Mono",monospace';
+
+/** Shown in mock mode: lists the demo accounts and fills the form on click. */
+function DemoAccounts({ onPick, disabled }) {
+  const colors = useColors();
+  return (
+    <Box sx={{ mt: 3, pt: 2.5, borderTop: `1px dashed ${colors.border.default}` }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25 }}>
+        <Box sx={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#e8b84a', boxShadow: '0 0 0 3px rgba(232,184,74,0.2)' }} />
+        <Typography sx={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: colors.text.tertiary }}>
+          Demo mode · no backend connected
+        </Typography>
+      </Box>
+      <Typography sx={{ fontFamily: '"Inter",sans-serif', fontSize: '0.8rem', color: colors.text.secondary, lineHeight: 1.6, mb: 1.5 }}>
+        Sign in with one of the demo accounts. Edits are saved in this browser only.
+      </Typography>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+        {DEMO_ACCOUNTS.map((acct) => (
+          <Box
+            key={acct.email}
+            component="button"
+            type="button"
+            disabled={disabled}
+            onClick={() => onPick(acct)}
+            sx={{
+              all: 'unset',
+              boxSizing: 'border-box',
+              cursor: disabled ? 'default' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 1.5,
+              px: 1.5,
+              py: 1,
+              borderRadius: '6px',
+              border: `1px solid ${colors.border.subtle}`,
+              backgroundColor: colors.ink,
+              transition: 'all 0.15s ease',
+              opacity: disabled ? 0.6 : 1,
+              '&:hover': disabled ? undefined : { borderColor: colors.accent, backgroundColor: colors.accentFaint },
+              '&:focus-visible': { outline: `2px solid ${colors.accent}`, outlineOffset: 2 },
+            }}
+          >
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontFamily: '"Inter",sans-serif', fontSize: '0.8rem', fontWeight: 500, color: colors.text.primary, lineHeight: 1.3 }}>
+                {acct.name}
+              </Typography>
+              <Typography sx={{ fontFamily: MONO, fontSize: '11px', color: colors.text.tertiary, lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {acct.email} · {acct.password}
+              </Typography>
+            </Box>
+            <Typography sx={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.accent, flexShrink: 0 }}>
+              Use
+            </Typography>
+          </Box>
+        ))}
+      </Box>
+    </Box>
+  );
+}
 
 export default function LoginPage() {
   const colors = useColors();
@@ -21,8 +81,16 @@ export default function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState({});
   const loginMutation = useLogin();
   const configured = isApiConfigured();
+  const mock = isMockApi();
 
   const busy = loginMutation.isPending;
+
+  const pickDemo = (acct) => {
+    loginMutation.reset();
+    setFieldErrors({});
+    setEmail(acct.email);
+    setPassword(acct.password);
+  };
 
   const submit = (e) => {
     e.preventDefault();
@@ -181,6 +249,8 @@ export default function LoginPage() {
                 </Button>
               </Box>
             )}
+
+            {configured && mock && <DemoAccounts onPick={pickDemo} disabled={busy} />}
           </Box>
 
           <Typography sx={{ fontFamily: MONO, fontSize: '10.5px', color: colors.text.tertiary, textAlign: 'center', mt: 3, letterSpacing: '0.04em' }}>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Typography, IconButton, Drawer, Tooltip, Button } from '@mui/material';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
@@ -8,14 +9,44 @@ import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import LogoutIcon from '@mui/icons-material/Logout';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ScienceOutlinedIcon from '@mui/icons-material/ScienceOutlined';
 import { useColors, useThemeMode } from '../../theme/ThemeContext';
 import { modules } from '../modules';
 import { useAdminUiStore } from '../../stores/adminUiStore';
 import { useAuthUser } from '../../stores/authStore';
+import { isMockApi } from '../../lib/api/client';
+import { resetMockContent } from '../../lib/api/mock';
+import { queryKeys } from '../../lib/queryClient';
 import { useConfirm } from './ConfirmDialog';
 
 const SIDEBAR_WIDTH = 248;
 const MONO = '"IBM Plex Mono",monospace';
+
+/** Mock-mode notice in the sidebar, with a way to restore the seeded demo content. */
+function DemoNotice({ onReset }) {
+  const colors = useColors();
+  return (
+    <Box sx={{ mx: 1.5, mb: 2, p: 1.5, borderRadius: '8px', border: '1px solid rgba(232,184,74,0.35)', backgroundColor: 'rgba(232,184,74,0.08)' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5 }}>
+        <ScienceOutlinedIcon sx={{ fontSize: 14, color: colors.isDark ? '#e8c84a' : '#9a6b00' }} />
+        <Typography sx={{ fontFamily: MONO, fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: colors.isDark ? '#e8c84a' : '#9a6b00' }}>
+          Demo mode
+        </Typography>
+      </Box>
+      <Typography sx={{ fontFamily: '"Inter",sans-serif', fontSize: '11.5px', color: colors.text.secondary, lineHeight: 1.5 }}>
+        No backend connected. Saves are kept in this browser only.
+      </Typography>
+      <Button
+        onClick={onReset}
+        variant="text"
+        size="small"
+        sx={{ mt: 0.75, p: 0, minWidth: 0, fontSize: '11.5px', color: colors.text.tertiary, '&:hover': { color: colors.accent, backgroundColor: 'transparent' } }}
+      >
+        Reset demo content
+      </Button>
+    </Box>
+  );
+}
 
 function Brand() {
   const colors = useColors();
@@ -67,12 +98,13 @@ function NavItem({ to, icon: Icon, label, active, onNavigate }) {
   );
 }
 
-function Sidebar({ onNavigate, onLogout, signingOut, onClose }) {
+function Sidebar({ onNavigate, onLogout, onResetDemo, signingOut, onClose }) {
   const colors = useColors();
   const { mode, toggleMode } = useThemeMode();
   const location = useLocation();
   const user = useAuthUser();
   const isDark = mode === 'dark';
+  const mock = isMockApi();
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -105,6 +137,8 @@ function Sidebar({ onNavigate, onLogout, signingOut, onClose }) {
           })}
         </Box>
       </Box>
+
+      {mock && <DemoNotice onReset={onResetDemo} />}
 
       <Box sx={{ px: 2, py: 2, borderTop: `1px solid ${colors.border.subtle}`, display: 'flex', flexDirection: 'column', gap: 1.25 }}>
         {user?.email && (
@@ -164,9 +198,24 @@ function Sidebar({ onNavigate, onLogout, signingOut, onClose }) {
 export default function AdminLayout({ children, onLogout, signingOut = false }) {
   const colors = useColors();
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const dirty = useAdminUiStore((s) => s.dirty);
   const [confirm, confirmDialog] = useConfirm();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Mock mode only: drop every saved edit and reload the seeded demo content.
+  const handleResetDemo = async () => {
+    setDrawerOpen(false);
+    const ok = await confirm({
+      title: 'Reset demo content?',
+      body: 'Every change saved in this browser is discarded and all modules go back to the seeded demo content.',
+      confirmLabel: 'Reset demo content',
+      danger: true,
+    });
+    if (!ok) return;
+    resetMockContent();
+    await qc.invalidateQueries({ queryKey: queryKeys.content });
+  };
 
   // Guard in-app navigation while a module has unsaved changes.
   const handleNavigate = async (e, to) => {
@@ -211,7 +260,7 @@ export default function AdminLayout({ children, onLogout, signingOut = false }) 
           display: { xs: 'none', md: 'block' },
         }}
       >
-        <Sidebar onNavigate={handleNavigate} onLogout={handleLogout} signingOut={signingOut} />
+        <Sidebar onNavigate={handleNavigate} onLogout={handleLogout} onResetDemo={handleResetDemo} signingOut={signingOut} />
       </Box>
 
       {/* Mobile drawer */}
@@ -220,7 +269,7 @@ export default function AdminLayout({ children, onLogout, signingOut = false }) 
         onClose={() => setDrawerOpen(false)}
         slotProps={{ paper: { sx: { width: SIDEBAR_WIDTH + 24, backgroundColor: colors.inkLight, backgroundImage: 'none', borderRight: `1px solid ${colors.border.subtle}` } } }}
       >
-        <Sidebar onNavigate={handleNavigate} onLogout={handleLogout} signingOut={signingOut} onClose={() => setDrawerOpen(false)} />
+        <Sidebar onNavigate={handleNavigate} onLogout={handleLogout} onResetDemo={handleResetDemo} signingOut={signingOut} onClose={() => setDrawerOpen(false)} />
       </Drawer>
 
       {/* Main */}

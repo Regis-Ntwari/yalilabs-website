@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '../../stores/authStore';
+import { mockAdapter } from './mock';
 
 /**
  * API CLIENT
@@ -11,10 +12,19 @@ import { useAuthStore } from '../../stores/authStore';
  *
  * Pass `{ skipAuth: true }` in a request config for public endpoints so the
  * public site never sends (or is affected by) an admin token.
+ *
+ * MOCK MODE — while the backend does not exist, requests can be served by the
+ * in-browser mock in ./mock.js. It is on when VITE_USE_MOCK_API=true, and also
+ * by default whenever VITE_API_URL is empty (set VITE_USE_MOCK_API=false to
+ * get the "not configured" screen instead).
  */
 export const API_URL = String(import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
 
-export const isApiConfigured = () => API_URL.length > 0;
+const mockFlag = String(import.meta.env.VITE_USE_MOCK_API || '').trim().toLowerCase();
+export const USE_MOCK_API = mockFlag === 'true' || mockFlag === '1' || (mockFlag !== 'false' && mockFlag !== '0' && API_URL.length === 0);
+
+export const isMockApi = () => USE_MOCK_API;
+export const isApiConfigured = () => USE_MOCK_API || API_URL.length > 0;
 
 export class ApiError extends Error {
   constructor(message, { status = 0, code = 'unknown', details = null } = {}) {
@@ -27,9 +37,10 @@ export class ApiError extends Error {
 }
 
 export const api = axios.create({
-  baseURL: API_URL,
+  baseURL: USE_MOCK_API ? '' : API_URL,
   timeout: 15_000,
   headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+  ...(USE_MOCK_API ? { adapter: mockAdapter } : {}),
 });
 
 api.interceptors.request.use((config) => {
