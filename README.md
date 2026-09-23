@@ -2,6 +2,8 @@
 
 React 19 + Vite + MUI single-page site, deployed on Vercel. Content is served by an API and edited in a hidden admin.
 
+New to the codebase? Start with the [Developer guide](docs/DEVELOPER_GUIDE.md): repository map, how content flows, the design system and the conventions to follow.
+
 ```bash
 npm install
 npm run dev        # local dev server

@@ -102,7 +102,7 @@ function ProductCard({ product, index, learnMoreLabel }) {
           >
             {stages.map((label, i) => (
               <Box key={`${label}-${i}`} role="listitem" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
-                {i > 0 && <Box component="span" aria-hidden="true" sx={{ fontFamily: MONO, fontSize: '10.5px', color: colors.stone600 }}>→</Box>}
+                {i > 0 && <ArrowRightAltIcon aria-hidden="true" sx={{ fontSize: 13, color: colors.stone600 }} />}
                 <Typography component="span" sx={{ fontFamily: MONO, fontSize: '10.5px', color: colors.text.tertiary, letterSpacing: '0.03em', whiteSpace: 'nowrap' }}>
                   {label}
                 </Typography>

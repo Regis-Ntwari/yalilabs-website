@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Container, Typography, TextField, Button, Alert, CircularProgress } from '@mui/material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import EmailIcon from '@mui/icons-material/Email';
+import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import { motion } from 'framer-motion';
 import { useColors } from '../theme/ThemeContext';
 import { CONTAINER_PX, SECTION_PY } from '../theme/layout';
@@ -43,7 +44,7 @@ function ContactForm({ copy, email }) {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <Box sx={{ p: 4, border: `1px solid ${colors.accent}33`, borderRadius: '8px', backgroundColor: colors.accentFaint, textAlign: 'center' }}>
           <Box sx={{ width: 48, height: 48, borderRadius: '50%', backgroundColor: colors.accentFaint, border: `1px solid ${colors.accent}44`, display: 'flex', alignItems: 'center', justifyContent: 'center', mx: 'auto', mb: 2 }}>
-            <Typography sx={{ fontSize: '1.5rem' }}>✓</Typography>
+            <CheckRoundedIcon sx={{ fontSize: 24, color: colors.accent }} />
           </Box>
           <Typography sx={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 600, fontSize: '1.1rem', color: colors.text.primary, mb: 1 }}>{copy.successHeading}</Typography>
           <Typography sx={{ color: colors.text.secondary, fontSize: '0.9rem', fontFamily: '"Inter",sans-serif', lineHeight: 1.6 }}>
