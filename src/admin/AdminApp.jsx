@@ -21,7 +21,7 @@ function AdminSession() {
 
   return (
     <>
-      <title>Admin — Yali Labs</title>
+      <title>Admin - Yali Labs</title>
       <meta name="robots" content="noindex, nofollow" />
       <AdminLayout onLogout={() => logoutMutation.mutate()} signingOut={logoutMutation.isPending}>
         <Routes>
@@ -35,7 +35,7 @@ function AdminSession() {
 }
 
 /**
- * AdminApp — mounted at /admin/*. Not linked from anywhere on the public site.
+ * AdminApp - mounted at /admin/*. Not linked from anywhere on the public site.
  * Shows the login screen until the auth store holds a session token.
  */
 export default function AdminApp() {

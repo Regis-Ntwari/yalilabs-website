@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 
 /**
- * RichText — renders a plain string with minimal inline markup:
+ * RichText - renders a plain string with minimal inline markup:
  *   **bold**  →  <strong>
  * Used so admin-editable copy can carry emphasis without HTML.
  */

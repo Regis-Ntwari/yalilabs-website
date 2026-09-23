@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import { useColors } from '../../theme/ThemeContext';
 
 /**
- * GridBackground — subtle technical grid overlay used in hero and key sections.
+ * GridBackground - subtle technical grid overlay used in hero and key sections.
  * Uses CSS to draw a fine dot-grid pattern.
  */
 export default function GridBackground({ children, sx = {} }) {

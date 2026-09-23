@@ -4,6 +4,7 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import { motion } from 'framer-motion';
 import { useColors } from '../theme/ThemeContext';
+import { CONTAINER_PX, SECTION_PY } from '../theme/layout';
 import { useModule } from '../content/useContent';
 import { initialsFor } from '../content/helpers';
 import AnimatedReveal from '../components/common/AnimatedReveal';
@@ -245,18 +246,18 @@ export default function Team() {
 
   return (
     <>
-      <title>Our Team — Yali Labs</title>
+      <title>Our Team - Yali Labs</title>
       <Box component="main">
 
         {/* ── Hero ── */}
-        <Box sx={{ borderBottom: `1px solid ${colors.border.subtle}`, py: { xs: 10, md: 14 }, backgroundColor: colors.ink, position: 'relative', overflow: 'hidden' }}>
+        <Box sx={{ borderBottom: `1px solid ${colors.border.subtle}`, py: SECTION_PY, backgroundColor: colors.ink, position: 'relative', overflow: 'hidden' }}>
           <DotGrid />
-          <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 }, position: 'relative', zIndex: 1 }}>
+          <Container sx={{ px: CONTAINER_PX, position: 'relative', zIndex: 1 }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
               <Typography variant="overline" sx={{ color: colors.accent, display: 'block', mb: 2, letterSpacing: '0.12em', fontSize: '0.68rem' }}>
                 {hero.overline}
               </Typography>
-              <Typography variant="h1" sx={{ fontSize: { xs: '2.25rem', md: '3.25rem' }, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.text.primary, mb: 2.5, maxWidth: 580 }}>
+              <Typography variant="h1" sx={{ fontSize: 'clamp(2.25rem, 1.6rem + 2.2vw, 4rem)', fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.text.primary, mb: 2.5, maxWidth: 580 }}>
                 {hero.title}
               </Typography>
               <Typography sx={{ color: colors.text.secondary, fontSize: { xs: '1rem', md: '1.1rem' }, lineHeight: 1.75, maxWidth: 520, fontFamily: '"Inter", sans-serif' }}>
@@ -267,8 +268,8 @@ export default function Team() {
         </Box>
 
         {/* ── Leadership + Team ── */}
-        <Box sx={{ py: { xs: 10, md: 14 }, borderBottom: `1px solid ${colors.border.subtle}` }}>
-          <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
+        <Box sx={{ py: SECTION_PY, borderBottom: `1px solid ${colors.border.subtle}` }}>
+          <Container sx={{ px: CONTAINER_PX }}>
             {heads.length > 0 && (
               <>
                 <AnimatedReveal>
@@ -312,7 +313,7 @@ export default function Team() {
 
         {/* ── Join CTA ── */}
         <Box sx={{ py: { xs: 10, md: 12 }, backgroundColor: colors.inkLight }}>
-          <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
+          <Container sx={{ px: CONTAINER_PX }}>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: { xs: 5, md: 8 }, alignItems: 'center' }}>
               <AnimatedReveal>
                 <Typography variant="overline" sx={{ color: colors.accent, display: 'block', mb: 1.5, letterSpacing: '0.12em', fontSize: '0.68rem' }}>

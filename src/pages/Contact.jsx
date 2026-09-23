@@ -4,6 +4,7 @@ import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import EmailIcon from '@mui/icons-material/Email';
 import { motion } from 'framer-motion';
 import { useColors } from '../theme/ThemeContext';
+import { CONTAINER_PX, SECTION_PY } from '../theme/layout';
 import { useModule } from '../content/useContent';
 import AnimatedReveal from '../components/common/AnimatedReveal';
 
@@ -82,15 +83,15 @@ export default function Contact() {
 
   return (
     <>
-      <title>Contact — Yali Labs</title>
+      <title>Contact - Yali Labs</title>
       <Box component="main">
         {/* Hero */}
-        <Box sx={{ borderBottom: `1px solid ${colors.border.subtle}`, py: { xs: 10, md: 14 }, backgroundColor: colors.ink, position: 'relative', overflow: 'hidden' }}>
+        <Box sx={{ borderBottom: `1px solid ${colors.border.subtle}`, py: SECTION_PY, backgroundColor: colors.ink, position: 'relative', overflow: 'hidden' }}>
           <DotGrid />
-          <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 }, position: 'relative', zIndex: 1 }}>
+          <Container sx={{ px: CONTAINER_PX, position: 'relative', zIndex: 1 }}>
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
               <Typography variant="overline" sx={{ color: colors.accent, display: 'block', mb: 2, letterSpacing: '0.12em', fontSize: '0.68rem' }}>{hero.overline}</Typography>
-              <Typography variant="h1" sx={{ fontSize: { xs: '2.25rem', md: '3.25rem' }, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.text.primary, mb: 2.5, maxWidth: 600 }}>{hero.title}</Typography>
+              <Typography variant="h1" sx={{ fontSize: 'clamp(2.25rem, 1.6rem + 2.2vw, 4rem)', fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.text.primary, mb: 2.5, maxWidth: 600 }}>{hero.title}</Typography>
               <Typography sx={{ color: colors.text.secondary, fontSize: { xs: '1rem', md: '1.05rem' }, lineHeight: 1.75, maxWidth: 480, fontFamily: '"Inter",sans-serif' }}>
                 {hero.description}
               </Typography>
@@ -99,8 +100,8 @@ export default function Contact() {
         </Box>
 
         {/* Contact body */}
-        <Box sx={{ py: { xs: 10, md: 14 } }}>
-          <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
+        <Box sx={{ py: SECTION_PY }}>
+          <Container sx={{ px: CONTAINER_PX }}>
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1.6fr' }, gap: { xs: 8, lg: 10 }, alignItems: 'start' }}>
               {/* Info */}
               <AnimatedReveal>

@@ -2,7 +2,7 @@ import { Box } from '@mui/material';
 import { motion } from 'framer-motion';
 
 /**
- * AnimatedReveal — wraps children with a subtle opacity + translateY reveal on scroll.
+ * AnimatedReveal - wraps children with a subtle opacity + translateY reveal on scroll.
  */
 export default function AnimatedReveal({
   children,

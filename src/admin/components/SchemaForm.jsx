@@ -348,7 +348,7 @@ function Field({ field, value, onChange }) {
 }
 
 /**
- * SchemaForm — renders an object `value` according to `fields`.
+ * SchemaForm - renders an object `value` according to `fields`.
  * Half-width fields share a row on desktop; everything else spans the row.
  */
 export default function SchemaForm({ fields, value, onChange }) {

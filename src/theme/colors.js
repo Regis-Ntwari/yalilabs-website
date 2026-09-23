@@ -1,10 +1,10 @@
 /**
- * Yali Labs Design System — Color Tokens
+ * Yali Labs Design System - Color Tokens
  *
  * Accent palette: blues from the provided brand scale.
- *   400: #1a9fff  — vivid, used on dark backgrounds
- *   500: #0077e6  — solid, used on light backgrounds
- *   600: #005cb3  — deep, used for hover/dim
+ *   400: #1a9fff  - vivid, used on dark backgrounds
+ *   500: #0077e6  - solid, used on light backgrounds
+ *   600: #005cb3  - deep, used for hover/dim
  */
 
 const blue = {
@@ -40,7 +40,7 @@ export const getDarkColors = () => ({
   stone100: '#ececec',
   stone50:  '#f7f7f5',
 
-  // Accent — vivid blue on dark
+  // Accent - vivid blue on dark
   accent:       blue[400],          // #1a9fff
   accentDim:    blue[600],          // #005cb3
   accentBright: blue[300],          // #4db5ff
@@ -79,14 +79,14 @@ export const getDarkColors = () => ({
  * are slate-tinted so they read as "white with depth" rather than flat grey.
  */
 export const getLightColors = () => ({
-  // Surfaces — white base, then progressively cooler tints
+  // Surfaces - white base, then progressively cooler tints
   ink:        '#ffffff',
   inkLight:   '#f7f9fc',   // alternating sections, cards on white
   inkMid:     '#f0f4f9',
   inkSurface: '#e9eff6',   // chips, pills, inset panels
   inkElevated:'#dde5ef',
 
-  // Neutral grays — slate-tinted so they harmonise with the blue accent
+  // Neutral grays - slate-tinted so they harmonise with the blue accent
   stone900: '#f3f6fa',
   stone800: '#e4e9f0',
   stone700: '#b9c2ce',
@@ -98,14 +98,14 @@ export const getLightColors = () => ({
   stone100: '#10151e',
   stone50:  '#0a0e15',
 
-  // Accent — deeper blue on white
+  // Accent - deeper blue on white
   accent:       blue[500],          // #0077e6
   accentDim:    blue[700],          // #004080
   accentBright: blue[400],          // #1a9fff
   accentFaint:  'rgba(0,119,230,0.06)',
   accentSubtle: 'rgba(0,119,230,0.12)',
 
-  // Text — near-black with a cool undertone
+  // Text - near-black with a cool undertone
   text: {
     primary:   '#0f1320',
     secondary: '#4b5566',
@@ -113,7 +113,7 @@ export const getLightColors = () => ({
     accent:    blue[500],
   },
 
-  // Borders — slate-tinted translucent lines blend into the white
+  // Borders - slate-tinted translucent lines blend into the white
   border: {
     subtle:  'rgba(15,23,42,0.08)',
     default: 'rgba(15,23,42,0.14)',

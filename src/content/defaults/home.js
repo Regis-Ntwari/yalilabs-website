@@ -1,27 +1,25 @@
 export default {
   hero: {
+    overline: 'AI research lab · Kigali, Rwanda',
     headlinePre: 'Building AI that',
     headlineAccent: 'understands',
     headlinePost: 'Africa.',
     subtitle:
-      'Yali Labs builds language technologies, foundation models, and developer tools designed around African languages — starting with Kinyarwanda.',
-    ctaLabel: 'Explore our work',
+      'Yali Labs builds language technologies, foundation models, and developer tools designed around African languages, starting with Kinyarwanda.',
+    ctaLabel: 'Explore our products',
     ctaHref: '/products',
-    terminalLabel: 'alta-tokenizer · kinyarwanda',
-    demoText: 'Nagiye gusura abanyeshuri.',
-    demoTokens: ['Na', 'gi', 'ye', ' gu', 'su', 'ra', ' aba', 'nye', 'shu', 'ri', '.'],
-    demoIds: [78, 1760, 203, 5256, 892, 451, 1845, 634, 907, 46, 12],
-    demoCompression: '3.7×',
-    playgroundLabel: 'Try the playground',
-    playgroundHref: 'https://altatokenizer.yalilabs.com/',
+    secondaryCtaLabel: 'About Yali Labs',
+    secondaryCtaHref: '/company/about-us',
+    panelLabel: 'alta · ecosystem',
+    panelFooter: 'One platform. Three products. Each one builds on the last.',
   },
 
   mission: {
     overline: 'Why we exist',
     heading: "AI shouldn't stop at the world's most spoken languages.",
     paragraphs: [
-      'Modern AI systems are largely trained on languages with enormous existing datasets and commercial demand. African languages — with their rich linguistic diversity and hundreds of millions of speakers — are frequently overlooked.',
-      'Yali Labs is working to change that. We are not simply adapting technology built for other contexts. We are researching, building, and releasing AI that starts from African languages — and Kinyarwanda is where we begin.',
+      'Modern AI systems are largely trained on languages with enormous existing datasets and commercial demand. African languages, with their rich linguistic diversity and hundreds of millions of speakers, are frequently overlooked.',
+      'Yali Labs is working to change that. We are not simply adapting technology built for other contexts. We are researching, building, and releasing AI that starts from African languages, and Kinyarwanda is where we begin.',
     ],
     stats: [
       { value: '2,000+', label: 'African languages documented globally', note: 'most lack NLP resources' },
@@ -48,7 +46,7 @@ export default {
   alta: {
     heading: 'Our technology, built layer by layer.',
     description:
-      "Alta is Yali Labs' AI technology platform for African languages — a set of interconnected tools and models, each building on the last.",
+      "Alta is Yali Labs' AI technology platform for African languages: a set of interconnected tools and models, each building on the last.",
     learnMoreLabel: 'Learn more',
     buttonLabel: 'View all products',
   },

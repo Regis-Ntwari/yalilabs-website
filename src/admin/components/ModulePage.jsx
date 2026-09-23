@@ -164,7 +164,7 @@ function ModuleEditor({ module, saved, serverIssues }) {
           borderBottom: `1px solid ${colors.border.subtle}`,
         }}
       >
-        <Box sx={{ maxWidth: 980, mx: 'auto', px: { xs: 2.5, md: 5 }, pt: { xs: 2.5, md: 3.5 }, pb: 0 }}>
+        <Box sx={{ maxWidth: 1120, mx: 'auto', px: { xs: 2.5, md: 5 }, pt: { xs: 2.5, md: 3.5 }, pb: 0 }}>
           <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap', mb: 2 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', minWidth: 0 }}>
               <Box
@@ -253,7 +253,7 @@ function ModuleEditor({ module, saved, serverIssues }) {
       </Box>
 
       {/* Body */}
-      <Box sx={{ maxWidth: 980, width: '100%', mx: 'auto', px: { xs: 2.5, md: 5 }, py: { xs: 3, md: 4 }, flex: 1 }}>
+      <Box sx={{ maxWidth: 1120, width: '100%', mx: 'auto', px: { xs: 2.5, md: 5 }, py: { xs: 3, md: 4 }, flex: 1 }}>
         {serverIssues.length > 0 && (
           <Alert severity="warning" sx={{ mb: 3, borderRadius: '8px', fontFamily: '"Inter",sans-serif', fontSize: '0.85rem' }}>
             The content stored on the server for this module did not match the expected shape, so the defaults are shown.

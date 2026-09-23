@@ -24,7 +24,7 @@ export default {
         { name: 'heading', label: 'Heading', type: 'text', half: true },
         {
           name: 'timeline', label: 'Timeline', type: 'list',
-          itemLabel: (item) => [item.year, item.title].filter(Boolean).join(' — '),
+          itemLabel: (item) => [item.year, item.title].filter(Boolean).join(' - '),
           itemFields: [
             { name: 'year', label: 'Marker', type: 'text', half: true, help: 'e.g. 2024, Now, Ahead' },
             { name: 'title', label: 'Title', type: 'text', half: true },

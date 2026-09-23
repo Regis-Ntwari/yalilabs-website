@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import { Link, useLocation } from 'react-router-dom';
@@ -43,7 +43,7 @@ function YaliLogo() {
         transition: 'opacity 0.2s',
         '&:hover': { opacity: 0.75 },
       }}
-      aria-label="Yali Labs — Home"
+      aria-label="Yali Labs - Home"
     >
       <Box
         sx={{
@@ -178,10 +178,10 @@ export default function Navbar() {
       >
         <Toolbar
           sx={{
-            maxWidth: 1280,
+            maxWidth: 1536,
             width: '100%',
             mx: 'auto',
-            px: { xs: 2, md: 4 },
+            px: { xs: 3, md: 5, xl: 6 },
             height: scrolled ? 56 : 68,
             minHeight: 'unset !important',
             transition: 'height 0.3s ease',
@@ -200,18 +200,16 @@ export default function Navbar() {
           {/* Desktop actions */}
           <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 1.25 }}>
             <ThemeToggle />
-            {/* <Button
-              component="a"
-              href="https://altatokenizer.yalilabs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Button
+              component={Link}
+              to="/products"
               variant="contained"
               size="small"
-              endIcon={<ArrowOutwardIcon sx={{ fontSize: '12px !important' }} />}
+              endIcon={<ArrowRightAltIcon sx={{ fontSize: '16px !important' }} />}
               sx={{ fontSize: '13px', py: 0.75, px: 2 }}
             >
-              Try Alta
-            </Button> */}
+              Explore Alta
+            </Button>
           </Box>
 
           {/* Mobile icons */}
@@ -286,17 +284,15 @@ export default function Navbar() {
 
           <Box sx={{ px: 3, py: 3, borderTop: `1px solid ${colors.border.subtle}` }}>
             <Button
-              component="a"
-              href="https://altatokenizer.yalilabs.com/"
-              target="_blank"
-              rel="noopener noreferrer"
+              component={Link}
+              to="/products"
               variant="contained"
               fullWidth
-              endIcon={<ArrowOutwardIcon sx={{ fontSize: '12px !important' }} />}
+              endIcon={<ArrowRightAltIcon />}
               onClick={() => setDrawerOpen(false)}
               sx={{ py: 1.25 }}
             >
-              Try Alta Tokenizer
+              Explore Alta products
             </Button>
           </Box>
         </Box>

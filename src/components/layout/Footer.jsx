@@ -1,6 +1,7 @@
 import { Box, Container, Typography, Link as MuiLink, Divider, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useColors } from '../../theme/ThemeContext';
+import { CONTAINER_PX } from '../../theme/layout';
 import { useModule } from '../../content/useContent';
 import { productHref } from '../../content/helpers';
 import { getSocialIcon } from '../../content/socials';
@@ -59,17 +60,19 @@ export default function Footer() {
       component="footer"
       sx={{ borderTop: `1px solid ${colors.border.subtle}`, backgroundColor: colors.ink, mt: 'auto' }}
     >
-      <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
+      <Container sx={{ px: CONTAINER_PX }}>
         <Box
           sx={{
             py: { xs: 6, md: 10 },
             display: 'grid',
-            gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: `2fr repeat(${columns}, 1fr)` },
-            gap: { xs: 5, md: 4 },
+            // Phones: brand on its own row, link groups two per row. Desktop: one row.
+            gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: `2fr repeat(${columns}, 1fr)` },
+            columnGap: { xs: 3, md: 4 },
+            rowGap: { xs: 5, md: 4 },
           }}
         >
           {/* Brand */}
-          <Box>
+          <Box sx={{ gridColumn: { xs: '1 / -1', md: 'auto' } }}>
             <Box component={Link} to="/" sx={{ display: 'flex', alignItems: 'center', gap: 1, textDecoration: 'none', mb: 2 }}>
               <Box
                 sx={{

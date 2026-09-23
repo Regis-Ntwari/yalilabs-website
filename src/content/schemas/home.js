@@ -3,19 +3,17 @@ import { str, lines, url, bool, num } from './common';
 
 export default z.object({
   hero: z.object({
+    overline: str,
     headlinePre: str,
     headlineAccent: str,
     headlinePost: str,
     subtitle: str,
     ctaLabel: str,
     ctaHref: url,
-    terminalLabel: str,
-    demoText: str,
-    demoTokens: z.array(str),
-    demoIds: z.array(num),
-    demoCompression: str,
-    playgroundLabel: str,
-    playgroundHref: url,
+    secondaryCtaLabel: str,
+    secondaryCtaHref: url,
+    panelLabel: str,
+    panelFooter: str,
   }),
   mission: z.object({
     overline: str,

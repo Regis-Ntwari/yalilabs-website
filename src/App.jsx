@@ -11,15 +11,13 @@ import { useSiteContent } from './content/useContent';
 
 // Lazy-loaded pages for performance
 const Home = lazy(() => import('./pages/Home'));
-const Research = lazy(() => import('./pages/Research'));
 const Products = lazy(() => import('./pages/Products'));
-const UseCases = lazy(() => import('./pages/UseCases'));
 const About = lazy(() => import('./pages/About'));
 const Team = lazy(() => import('./pages/Team'));
 const Contact = lazy(() => import('./pages/Contact'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
-// The admin lives in its own chunk — nothing on the public site links to it.
+// The admin lives in its own chunk - nothing on the public site links to it.
 const AdminApp = lazy(() => import('./admin/AdminApp'));
 
 function PageLoader({ fullScreen = false }) {
@@ -65,10 +63,10 @@ function PublicLayout() {
   // defaults if the request fails, so only the first load is gated.
   const { isPending } = useSiteContent();
 
-  // Scroll to top on route change
+  // Scroll to top on route change (pages with a #hash scroll to it themselves).
   React.useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [location.pathname]);
+    if (!location.hash) window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [location.pathname, location.hash]);
 
   if (isPending) return <PageLoader fullScreen />;
 
@@ -80,11 +78,14 @@ function PublicLayout() {
           <Suspense fallback={<PageLoader />}>
             <Routes location={location}>
               <Route path="/" element={<Home />} />
-              <Route path="/research" element={<Research />} />
               <Route path="/products" element={<Products />} />
-              <Route path="/products/alta-tokenizer" element={<Navigate to="/products?product=tokenizer" replace />} />
-              <Route path="/products/alta-model" element={<Navigate to="/products?product=model" replace />} />
-              <Route path="/use-cases" element={<UseCases />} />
+              {/* Legacy product URLs */}
+              <Route path="/products/alta-model" element={<Navigate to="/products#model" replace />} />
+              <Route path="/products/altascribe" element={<Navigate to="/products#scribe" replace />} />
+              <Route path="/products/alta-foundry" element={<Navigate to="/products#foundry" replace />} />
+              <Route path="/products/*" element={<Navigate to="/products" replace />} />
+              <Route path="/research" element={<Navigate to="/" replace />} />
+              <Route path="/use-cases" element={<Navigate to="/products" replace />} />
               <Route path="/company/about-us" element={<About />} />
               <Route path="/company/our-team" element={<Team />} />
               <Route path="/contact-us" element={<Contact />} />

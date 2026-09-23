@@ -3,7 +3,7 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography }
 import { useColors } from '../../theme/ThemeContext';
 
 /**
- * useConfirm — promise-based confirmation.
+ * useConfirm - promise-based confirmation.
  *   const [confirm, dialog] = useConfirm();
  *   if (await confirm({ title, body, confirmLabel, danger })) { ... }
  *   return <>{dialog}...</>

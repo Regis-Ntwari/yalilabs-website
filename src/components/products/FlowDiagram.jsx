@@ -2,10 +2,10 @@ import { Box, Typography } from '@mui/material';
 import { useColors } from '../../theme/ThemeContext';
 
 /**
- * FlowDiagram — a borderless top-to-bottom pipeline.
+ * FlowDiagram - a borderless top-to-bottom pipeline.
  * Used as the "how it works" visual for products without a live demo.
  * Stacking vertically keeps every label fully readable at any width.
- * `stages`: [{ label, sub }] — colors are derived automatically (dims in, accents at the end).
+ * `stages`: [{ label, sub }] - colors are derived automatically (dims in, accents at the end).
  */
 export default function FlowDiagram({ stages }) {
   const colors = useColors();

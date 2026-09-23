@@ -1,5 +1,5 @@
-/** Internal route for a product's detail view on /products. */
-export const productHref = (product) => `/products?product=${encodeURIComponent(product.id || '')}`;
+/** Internal route for a product's section on /products. */
+export const productHref = (product) => `/products#${encodeURIComponent(product.id || '')}`;
 
 /** Two-letter initials from a full name, used when a member has none set. */
 export function initialsFor(name = '') {

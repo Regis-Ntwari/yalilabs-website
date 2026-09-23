@@ -13,7 +13,7 @@ import { mockAdapter } from './mock';
  * Pass `{ skipAuth: true }` in a request config for public endpoints so the
  * public site never sends (or is affected by) an admin token.
  *
- * MOCK MODE — while the backend does not exist, requests can be served by the
+ * MOCK MODE - while the backend does not exist, requests can be served by the
  * in-browser mock in ./mock.js. It is on when VITE_USE_MOCK_API=true, and also
  * by default whenever VITE_API_URL is empty (set VITE_USE_MOCK_API=false to
  * get the "not configured" screen instead).

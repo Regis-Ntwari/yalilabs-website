@@ -10,7 +10,7 @@ export default function NotFound() {
 
   return (
     <>
-      <title>404 — Page Not Found | Yali Labs</title>
+      <title>404 - Page Not Found | Yali Labs</title>
       <Box component="main" sx={{ minHeight: '60vh', display: 'flex', alignItems: 'center', backgroundColor: colors.ink }}>
         <Container maxWidth="sm" sx={{ px: { xs: 3, md: 4 }, textAlign: 'center' }}>
           <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '11px', color: colors.text.tertiary, letterSpacing: '0.1em', textTransform: 'uppercase', mb: 2 }}>{notFound.label}</Typography>

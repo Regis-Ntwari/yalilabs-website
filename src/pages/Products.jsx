@@ -1,215 +1,90 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Box, Container, Typography, Button } from '@mui/material';
-import { AnimatePresence, motion } from 'framer-motion';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
-import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useColors } from '../theme/ThemeContext';
 import { useModule } from '../content/useContent';
+import { CONTAINER_PX } from '../theme/layout';
 import AnimatedReveal from '../components/common/AnimatedReveal';
 import SectionHeader from '../components/common/SectionHeader';
-import ProductCarousel from '../components/products/ProductCarousel';
-import TokenizerDemo from '../components/products/TokenizerDemo';
-import FlowDiagram from '../components/products/FlowDiagram';
+import ProductShowcase from '../components/products/ProductShowcase';
 
-function HowItWorksVisual({ product }) {
-  if (product.visual === 'tokenizer') return <TokenizerDemo />;
-  return <FlowDiagram stages={product.flowStages || []} />;
-}
+const MONO = '"IBM Plex Mono",monospace';
+const NAV_OFFSET = 96;
 
-function FeaturesGrid({ features }) {
-  const colors = useColors();
-  return (
-    <Box
-      sx={{
-        display: 'grid',
-        gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-        columnGap: { md: 8 },
-        rowGap: { xs: 5, md: 6.5 },
-      }}
-    >
-      {features.map((f, i) => (
-        <Box key={`${f.title}-${i}`}>
-          <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '11px', color: colors.accent, letterSpacing: '0.1em', mb: 1.5 }}>
-            {String(i + 1).padStart(2, '0')}
-          </Typography>
-          <Typography
-            variant="h5"
-            sx={{
-              fontFamily: '"Space Grotesk",sans-serif',
-              fontSize: { xs: '1.1rem', md: '1.2rem' },
-              fontWeight: 600,
-              letterSpacing: '-0.025em',
-              lineHeight: 1.3,
-              color: colors.text.primary,
-              mb: 1.25,
-            }}
-          >
-            {f.title}
-          </Typography>
-          <Typography sx={{ color: colors.text.secondary, fontSize: { xs: '0.9rem', md: '1rem' }, lineHeight: 1.75, fontFamily: '"Inter",sans-serif', maxWidth: 560 }}>
-            {f.description}
-          </Typography>
-        </Box>
-      ))}
-    </Box>
-  );
-}
-
-function isExternal(href = '') {
-  return /^https?:\/\//i.test(href);
+/** Product id carried by the URL, from #id or the legacy ?product=id. */
+function requestedId(location) {
+  if (location.hash) return decodeURIComponent(location.hash.slice(1));
+  return new URLSearchParams(location.search).get('product') || '';
 }
 
 export default function Products() {
   const colors = useColors();
+  const location = useLocation();
   const { page, catalog } = useModule('products');
-  const products = catalog.items || [];
-  const [searchParams] = useSearchParams();
-  const requested = searchParams.get('product');
-  const requestedIndex = products.findIndex(p => p.id === requested);
-  const [activeIndex, setActiveIndex] = useState(requestedIndex === -1 ? 0 : requestedIndex);
+  const products = useMemo(() => catalog.items || [], [catalog.items]);
+  const showcaseRef = useRef(null);
 
-  const active = products[Math.min(activeIndex, Math.max(0, products.length - 1))];
+  // The active product comes from the URL until the visitor picks one in the
+  // carousel. Each router navigation (new location.key) hands control back to
+  // the URL, so footer / hero links to /products#id always win.
+  const [selection, setSelection] = useState(null);
+  const urlIndex = Math.max(0, products.findIndex((p) => p.id === requestedId(location)));
+  const activeIndex = selection?.key === location.key ? selection.index : urlIndex;
 
-  const fade = {
-    initial: { opacity: 0, y: 12 },
-    animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -12 },
-    transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
-  };
+  // A product link (footer, hero panel, shared URL) brings the showcase into view.
+  useEffect(() => {
+    if (!requestedId(location)) return undefined;
+    let raf2;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => showcaseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+    });
+    return () => { cancelAnimationFrame(raf1); cancelAnimationFrame(raf2); };
+  }, [location]);
+
+  // Selecting a product in the carousel mirrors it into the hash without a
+  // navigation, so the URL stays shareable and the page does not jump.
+  const handleChange = useCallback((index) => {
+    setSelection({ key: location.key, index });
+    const id = products[index]?.id;
+    if (id) window.history.replaceState(window.history.state, '', `#${encodeURIComponent(id)}`);
+  }, [products, location.key]);
+
+  const safeIndex = Math.min(activeIndex, Math.max(0, products.length - 1));
 
   return (
     <>
-      <title>Products — The Alta Ecosystem | Yali Labs</title>
+      <title>Products - The Alta Ecosystem | Yali Labs</title>
       <Box component="main">
-        <Box sx={{ pt: { xs: 8, md: 11 }, pb: { xs: 6, md: 8 }, backgroundColor: colors.ink }}>
-          <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
-            <AnimatedReveal>
-              <SectionHeader heading={page.heading} description={page.description} />
-            </AnimatedReveal>
+        <Box sx={{ pt: { xs: 8, md: 12, xl: 14 }, pb: { xs: 10, md: 14, xl: 16 }, backgroundColor: colors.ink }}>
+          <Container sx={{ px: CONTAINER_PX }}>
+            <SectionHeader heading={page.heading} description={page.description} maxWidth={720} sx={{ mb: { xs: 6, md: 8 } }} />
+
+            {products.length > 0 && (
+              <Box ref={showcaseRef} sx={{ scrollMarginTop: NAV_OFFSET }}>
+                <AnimatedReveal>
+                  <ProductShowcase products={products} page={page} activeIndex={safeIndex} onChange={handleChange} />
+                </AnimatedReveal>
+              </Box>
+            )}
           </Container>
         </Box>
 
-        {active && (
-          <>
-            <Box sx={{ pb: { xs: 9, md: 12 }, backgroundColor: colors.ink }}>
-              <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
-                <AnimatedReveal>
-                  <ProductCarousel products={products} activeIndex={activeIndex} onSelect={setActiveIndex} />
-                </AnimatedReveal>
-              </Container>
-            </Box>
-
-            <Box sx={{ py: { xs: 9, md: 13 }, backgroundColor: colors.inkLight }}>
-              <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
-                <AnimatePresence mode="wait">
-                  <motion.div key={active.id} {...fade}>
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: { xs: 6, lg: 10 }, alignItems: 'center' }}>
-                      <SectionHeader
-                        overline={page.howItWorksOverline}
-                        heading={active.howItWorks?.heading || ''}
-                        description={active.howItWorks?.description}
-                        maxWidth={620}
-                      />
-                      <HowItWorksVisual product={active} />
-                    </Box>
-                  </motion.div>
-                </AnimatePresence>
-              </Container>
-            </Box>
-
-            <Box sx={{ py: { xs: 9, md: 13 }, backgroundColor: colors.ink }}>
-              <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
-                <SectionHeader
-                  overline={page.featuresOverline}
-                  heading={`What ${active.title} ${page.featuresHeadingSuffix || 'does.'}`}
-                  sx={{ mb: { xs: 5, md: 7 } }}
-                />
-                <AnimatePresence mode="wait">
-                  <motion.div key={active.id} {...fade}>
-                    <FeaturesGrid features={active.features || []} />
-                  </motion.div>
-                </AnimatePresence>
-              </Container>
-            </Box>
-
-            <Box sx={{ py: { xs: 9, md: 12 }, textAlign: 'center', backgroundColor: colors.inkLight }}>
-              <Container maxWidth="sm" sx={{ px: { xs: 3, md: 4 } }}>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={active.id}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    {active.externalHref ? (
-                      <>
-                        <Typography
-                          variant="h3"
-                          sx={{ fontFamily: '"Space Grotesk",sans-serif', fontSize: { xs: '1.5rem', md: '1.9rem' }, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.2, color: colors.text.primary, mb: 3.5 }}
-                        >
-                          {page.readyPrefix} {active.title}?
-                        </Typography>
-                        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-                          <Button component="a" href={active.externalHref} target="_blank" rel="noopener noreferrer" variant="contained" size="large" endIcon={<ArrowOutwardIcon sx={{ fontSize: '13px !important' }} />}>
-                            {active.externalLabel || 'Learn more'}
-                          </Button>
-                        </Box>
-                      </>
-                    ) : (
-                      <>
-                        <Typography
-                          variant="h3"
-                          sx={{ fontFamily: '"Space Grotesk",sans-serif', fontSize: { xs: '1.5rem', md: '1.9rem' }, fontWeight: 600, letterSpacing: '-0.025em', lineHeight: 1.2, color: colors.text.primary, mb: 2.5 }}
-                        >
-                          {active.title} is {(active.badge || '').toLowerCase()}.
-                        </Typography>
-                        <Typography sx={{ color: colors.text.secondary, fontSize: { xs: '0.9rem', md: '1rem' }, lineHeight: 1.75, fontFamily: '"Inter",sans-serif', mb: 3.5 }}>
-                          {page.fallbackText}
-                        </Typography>
-                        {page.fallbackHref && (
-                          isExternal(page.fallbackHref) ? (
-                            <Button component="a" href={page.fallbackHref} target="_blank" rel="noopener noreferrer" variant="outlined" size="large" endIcon={<ArrowRightAltIcon />}>
-                              {page.fallbackLabel}
-                            </Button>
-                          ) : (
-                            <Button component={Link} to={page.fallbackHref} variant="outlined" size="large" endIcon={<ArrowRightAltIcon />}>
-                              {page.fallbackLabel}
-                            </Button>
-                          )
-                        )}
-                      </>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-
-                <AnimatedReveal delay={0.1}>
-                  <Box sx={{ mt: { xs: 6, md: 8 }, pt: { xs: 4, md: 5 }, borderTop: `1px solid ${colors.border.subtle}` }}>
-                    <Typography
-                      sx={{
-                        fontFamily: '"IBM Plex Mono",monospace',
-                        fontSize: '10px',
-                        color: colors.text.tertiary,
-                        letterSpacing: '0.08em',
-                        textTransform: 'uppercase',
-                        mb: 1.5,
-                      }}
-                    >
-                      {page.nextLabel}
-                    </Typography>
-                    <Typography sx={{ color: colors.text.secondary, fontSize: { xs: '0.875rem', md: '0.95rem' }, lineHeight: 1.75, fontFamily: '"Inter",sans-serif', mb: 3 }}>
-                      {page.nextText}
-                    </Typography>
-                    <Button component={Link} to={page.nextButtonHref || '/company/about-us'} variant="outlined" size="large" endIcon={<ArrowRightAltIcon />}>
-                      {page.nextButtonLabel}
-                    </Button>
-                  </Box>
-                </AnimatedReveal>
-              </Container>
-            </Box>
-          </>
-        )}
+        <Box sx={{ py: { xs: 9, md: 12, xl: 14 }, textAlign: 'center', backgroundColor: colors.inkLight, borderTop: `1px solid ${colors.border.subtle}` }}>
+          <Container maxWidth="sm" sx={{ px: CONTAINER_PX }}>
+            <AnimatedReveal>
+              <Typography sx={{ fontFamily: MONO, fontSize: '10px', color: colors.text.tertiary, letterSpacing: '0.08em', textTransform: 'uppercase', mb: 1.5 }}>
+                {page.nextLabel}
+              </Typography>
+              <Typography sx={{ color: colors.text.secondary, fontSize: { xs: '0.95rem', md: '1.05rem' }, lineHeight: 1.75, fontFamily: '"Inter",sans-serif', mb: 3.5 }}>
+                {page.nextText}
+              </Typography>
+              <Button component={Link} to={page.nextButtonHref || '/company/about-us'} variant="outlined" size="large" endIcon={<ArrowRightAltIcon />}>
+                {page.nextButtonLabel}
+              </Button>
+            </AnimatedReveal>
+          </Container>
+        </Box>
       </Box>
     </>
   );

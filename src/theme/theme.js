@@ -46,6 +46,11 @@ export const createAppTheme = (mode, c) =>
     },
     shape: { borderRadius: 4 },
     components: {
+      // Public-site containers cap at 1536px so wide monitors get a wider
+      // reading column instead of a narrow strip in the middle.
+      MuiContainer: {
+        defaultProps: { maxWidth: 'xl' },
+      },
       MuiButton: {
         styleOverrides: {
           root: {

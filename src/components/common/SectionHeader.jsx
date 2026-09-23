@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useColors } from '../../theme/ThemeContext';
 
 export default function SectionHeader({
+  id,
   overline,
   heading,
   description,
@@ -40,14 +41,18 @@ export default function SectionHeader({
         </Typography>
       )}
       <Typography
+        id={id}
         variant="h2"
         sx={{
-          fontSize: { xs: '1.75rem', sm: '2rem', md: '2.5rem' },
+          // Fluid: ~1.75rem on phones, ~2.75rem on wide monitors.
+          fontSize: 'clamp(1.75rem, 1.3rem + 1.4vw, 2.75rem)',
           fontWeight: 600,
           letterSpacing: '-0.025em',
           lineHeight: 1.15,
           color: colors.text.primary,
           mb: description ? 2.5 : 0,
+          maxWidth: 760,
+          mx: align === 'center' ? 'auto' : 0,
         }}
       >
         {renderHeading()}
@@ -56,7 +61,7 @@ export default function SectionHeader({
         <Typography
           sx={{
             color: colors.text.secondary,
-            fontSize: { xs: '0.9rem', md: '1rem' },
+            fontSize: { xs: '0.9rem', md: '1rem', xl: '1.05rem' },
             lineHeight: 1.75,
             fontFamily: '"Inter",sans-serif',
             maxWidth,

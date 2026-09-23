@@ -61,8 +61,8 @@ src/admin/modules/*.js         form definition (sections + fields) per module
 
 ### How content flows
 
-- **Public site** – `useSiteContent()` loads everything with one `GET /content` and caches it for the session. Each module is merged over its code defaults and validated with zod; if the API is unreachable or a module fails validation, the defaults are shown so the site never renders empty.
-- **Admin** – `useModuleQuery(key)` loads one module with `GET /content/:key`. Saving sanitises the form, validates it with the module's zod schema (errors are listed above the form and the offending tab is highlighted), then `PUT /content/:key`. On success the admin cache and the public cache are refreshed.
+- **Public site** - `useSiteContent()` loads everything with one `GET /content` and caches it for the session. Each module is merged over its code defaults and validated with zod; if the API is unreachable or a module fails validation, the defaults are shown so the site never renders empty.
+- **Admin** - `useModuleQuery(key)` loads one module with `GET /content/:key`. Saving sanitises the form, validates it with the module's zod schema (errors are listed above the form and the offending tab is highlighted), then `PUT /content/:key`. On success the admin cache and the public cache are refreshed.
 - **Reset to defaults** writes the code defaults to the API.
 
 ### API contract
@@ -72,10 +72,10 @@ The frontend expects these endpoints under `VITE_API_URL`. Responses are plain J
 | Method | Path            | Auth   | Request body                 | Response                                                           |
 | ------ | --------------- | ------ | ---------------------------- | ------------------------------------------------------------------ |
 | POST   | `/auth/login`   | none   | `{ email, password }`        | `{ token, user: { id, email, name? } }`; `401` on bad credentials |
-| GET    | `/auth/me`      | bearer | –                            | `{ user: { id, email, name? } }` (or the user object directly)     |
-| POST   | `/auth/logout`  | bearer | –                            | `204`                                                              |
-| GET    | `/content`      | none   | –                            | `{ home, products, about, team, contact, footer }`                 |
-| GET    | `/content/:key` | bearer | –                            | the module object, e.g. `{ hero: {…}, mission: {…}, … }`           |
+| GET    | `/auth/me`      | bearer | -                            | `{ user: { id, email, name? } }` (or the user object directly)     |
+| POST   | `/auth/logout`  | bearer | -                            | `204`                                                              |
+| GET    | `/content`      | none   | -                            | `{ home, products, about, team, contact, footer }`                 |
+| GET    | `/content/:key` | bearer | -                            | the module object, e.g. `{ hero: {…}, mission: {…}, … }`           |
 | PUT    | `/content/:key` | bearer | the full module object       | the saved module object                                            |
 
 - Authenticated requests send `Authorization: Bearer <token>`. Any `401` on an authenticated request signs the admin out.
@@ -91,6 +91,18 @@ The frontend expects these endpoints under `VITE_API_URL`. Responses are plain J
 
 Icons, partner logos and social platforms are referenced by name; extend `src/content/icons.js`, `src/content/logos.jsx` or `src/content/socials.js` to offer more choices.
 
+### Products
+
+The **Products** module holds the three Alta products (Alta Model, AltaScribe, Alta Foundry). Each product has a name, tagline, status badge, icon, a brief description, a "how it works" heading + description + flow stages, and a link to its own platform (`externalHref`). One list feeds:
+
+- the homepage hero panel and product preview (`featured` toggles both; the hero panel shows at most four),
+- the `/products` carousel: a scrolling strip of product tabs above a stage that slides between products (arrows, swipe, arrow keys). The active product is mirrored into the URL, so `/products#<id>` opens that product,
+- the footer product links.
+
+The carousel is built for growth: add as many products as needed and the tab strip scrolls horizontally instead of the page getting longer.
+
+Leave `externalHref` empty for a product that is not released yet; the page then shows the "unreleased" text from the page copy instead of a button.
+
 ### Pages outside the admin
 
-`/research`, `/use-cases` and the 404 page are not linked from the navigation and are not editable. Their copy lives in `src/content/static/`.
+Only the 404 page is not editable; its copy lives in `src/content/static/notFound.js`. The former `/research` and `/use-cases` pages were removed and redirect to the homepage and `/products`.

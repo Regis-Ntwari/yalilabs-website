@@ -21,7 +21,8 @@ export const DEMO_ACCOUNTS = [
   { id: 'usr_demo_editor', email: 'editor@yalilabs.com', password: 'editor2026', name: 'Demo Editor' },
 ];
 
-const STORAGE_KEY = 'yali-mock-content';
+// Bump the suffix whenever the content shape changes so stale demo saves are dropped.
+const STORAGE_KEY = 'yali-mock-content-v2';
 const TOKEN_PREFIX = 'demo-token.';
 const LATENCY = { min: 250, max: 650 };
 
@@ -36,7 +37,7 @@ function buildSeed() {
   const seed = clone(defaults);
 
   seed.home.hero.subtitle =
-    'Yali Labs builds language technologies, foundation models, and developer tools designed around African languages — starting with Kinyarwanda and expanding across East Africa.';
+    'Yali Labs builds language technologies, foundation models, and developer tools designed around African languages, starting with Kinyarwanda and expanding across East Africa.';
   seed.home.hero.ctaLabel = 'See what we are building';
   seed.home.mission.stats[2] = { value: '15M+', label: 'Kinyarwanda speakers in East Africa', note: 'Rwanda, Uganda, DRC, Tanzania' };
 

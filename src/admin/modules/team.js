@@ -15,7 +15,7 @@ export default {
         { name: 'teamLabel', label: 'Team section label', type: 'text', half: true },
         {
           name: 'items', label: 'People', type: 'list',
-          itemLabel: (item) => [item.name, item.role].filter(Boolean).join(' — '),
+          itemLabel: (item) => [item.name, item.role].filter(Boolean).join(' - '),
           itemFields: [
             { name: 'name', label: 'Full name', type: 'text', half: true },
             { name: 'initials', label: 'Initials', type: 'text', half: true, help: 'Leave empty to derive from the name.' },

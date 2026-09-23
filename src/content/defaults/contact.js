@@ -3,18 +3,18 @@ export default {
     overline: 'Contact',
     title: "Let's build the future of African AI.",
     description:
-      "Whether you're a researcher, developer, potential partner, or just curious about our work — we would like to hear from you.",
+      "Whether you're a researcher, developer, potential partner, or just curious about our work, we would like to hear from you.",
   },
 
   info: {
     heading: 'Get in touch.',
-    text: 'We are a small team — so you will be speaking directly to the people working on Yali Labs, not a support bot.',
+    text: 'We are a small team, so you will be speaking directly to the people working on Yali Labs, not a support bot.',
     emailLabel: 'Email us directly',
     email: 'contact@yalilabs.com',
     reasonsLabel: 'Good reasons to reach out',
     reasons: [
       'Research collaboration',
-      'Developer questions about Alta Tokenizer',
+      'Developer questions about Alta products',
       'Partnership enquiries',
       'Press & media',
       'General questions',

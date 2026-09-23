@@ -123,7 +123,7 @@ export default function LoginPage() {
 
   return (
     <>
-      <title>Admin — Yali Labs</title>
+      <title>Admin - Yali Labs</title>
       <meta name="robots" content="noindex, nofollow" />
       <Box
         sx={{

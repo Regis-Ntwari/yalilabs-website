@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
 import { motion } from 'framer-motion';
 import { useColors } from '../theme/ThemeContext';
+import { CONTAINER_PX, SECTION_PY } from '../theme/layout';
 import { useModule } from '../content/useContent';
 import SectionHeader from '../components/common/SectionHeader';
 import AnimatedReveal from '../components/common/AnimatedReveal';
@@ -20,16 +21,16 @@ export default function About() {
 
   return (
     <>
-      <title>About — Yali Labs</title>
+      <title>About - Yali Labs</title>
       <Box component="main">
         {/* Hero */}
-        <Box sx={{ borderBottom: `1px solid ${colors.border.subtle}`, py: { xs: 10, md: 14 }, backgroundColor: colors.ink, position: 'relative', overflow: 'hidden' }}>
+        <Box sx={{ borderBottom: `1px solid ${colors.border.subtle}`, py: SECTION_PY, backgroundColor: colors.ink, position: 'relative', overflow: 'hidden' }}>
           <DotGrid />
-          <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 }, position: 'relative', zIndex: 1 }}>
+          <Container sx={{ px: CONTAINER_PX, position: 'relative', zIndex: 1 }}>
             <Box sx={{ maxWidth: 680 }}>
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}>
                 <Typography variant="overline" sx={{ color: colors.accent, display: 'block', mb: 2, letterSpacing: '0.12em', fontSize: '0.68rem' }}>{hero.overline}</Typography>
-                <Typography variant="h1" sx={{ fontSize: { xs: '2.25rem', md: '3.25rem' }, fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.text.primary, mb: 2.5 }}>{hero.title}</Typography>
+                <Typography variant="h1" sx={{ fontSize: 'clamp(2.25rem, 1.6rem + 2.2vw, 4rem)', fontWeight: 600, letterSpacing: '-0.03em', lineHeight: 1.1, color: colors.text.primary, mb: 2.5 }}>{hero.title}</Typography>
                 {(hero.paragraphs || []).map((p, i, arr) => (
                   <Typography key={i} sx={{ color: colors.text.secondary, fontSize: { xs: '1rem', md: i === 0 ? '1.1rem' : '1.05rem' }, lineHeight: 1.75, fontFamily: '"Inter",sans-serif', mb: i < arr.length - 1 ? 3 : 0 }}>
                     {p}
@@ -41,8 +42,8 @@ export default function About() {
         </Box>
 
         {/* Story */}
-        <Box sx={{ py: { xs: 10, md: 14 }, borderBottom: `1px solid ${colors.border.subtle}` }}>
-          <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
+        <Box sx={{ py: SECTION_PY, borderBottom: `1px solid ${colors.border.subtle}` }}>
+          <Container sx={{ px: CONTAINER_PX }}>
             <SectionHeader overline={story.overline} heading={story.heading} sx={{ mb: { xs: 7, md: 9 } }} />
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: { xs: 0, lg: 10 } }}>
               <Box>

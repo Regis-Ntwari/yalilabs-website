@@ -1,79 +1,213 @@
 import { useEffect, useRef, useState } from 'react';
 import { Box, Typography, Button, Container } from '@mui/material';
 import ArrowRightAltIcon from '@mui/icons-material/ArrowRightAlt';
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useColors } from '../../theme/ThemeContext';
 import { useModule } from '../../content/useContent';
+import { productHref } from '../../content/helpers';
+import { CONTAINER_PX } from '../../theme/layout';
+import ContentIcon from '../../content/ContentIcon';
 
-// ─── Animated token visualization ────────────────────────────────────────────
-function TokenViz({ hero }) {
+const EASE = [0.22, 1, 0.36, 1];
+const CYCLE_MS = 3800;
+const MONO = '"IBM Plex Mono",monospace';
+
+// ─── Ecosystem panel ─────────────────────────────────────────────────────────
+// Lists the Alta products from the catalogue and slowly cycles through them,
+// expanding one at a time. Hovering or focusing a row pins it.
+function EcosystemPanel({ label, footer, products, total }) {
   const colors = useColors();
-  const [phase, setPhase] = useState(0); // 0=text 1=splitting 2=tokens
-  const [visible, setVisible] = useState(false);
-
-  const tokens = hero.demoTokens || [];
-  const ids = hero.demoIds || [];
-  const text = hero.demoText || '';
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const count = products.length;
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 600);
-    return () => clearTimeout(t);
-  }, []);
-
-  useEffect(() => {
-    if (!visible) return;
-    let idx = 0;
-    const iv = setInterval(() => { idx = (idx + 1) % 3; setPhase(idx); }, 2800);
+    if (paused || count < 2) return undefined;
+    const iv = setInterval(() => setActive((i) => (i + 1) % count), CYCLE_MS);
     return () => clearInterval(iv);
-  }, [visible]);
+  }, [paused, count]);
 
-  const label = phase === 0 ? '// input text' : phase === 1 ? '// tokenizing...' : '// tokens';
+  if (count === 0) return null;
+  const current = products[Math.min(active, count - 1)];
 
   return (
-    <Box sx={{ fontFamily: '"IBM Plex Mono",monospace', opacity: visible ? 1 : 0, transition: 'opacity 0.8s ease' }}>
-      <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10px', letterSpacing: '0.12em', color: colors.text.tertiary, mb: 1.5, textTransform: 'uppercase' }}>
-        {label}
-      </Typography>
-
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: phase === 2 ? 0.75 : 0, transition: 'gap 0.4s ease', minHeight: 44, alignItems: 'center' }}>
-        {phase === 0 && (
-          <motion.span key="full" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}
-            style={{ color: colors.text.primary, fontSize: '17px', fontWeight: 500, letterSpacing: '-0.01em' }}>
-            {text}
-          </motion.span>
-        )}
-        {(phase === 1 || phase === 2) && tokens.map((tok, i) => (
-          <motion.span key={`${phase}-${i}`}
-            initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.22, delay: i * 0.04 }}
-            style={{
-              display: 'inline-block',
-              backgroundColor: phase === 2 ? (i % 2 === 0 ? colors.accentFaint : colors.inkSurface) : 'transparent',
-              border: phase === 2 ? `1px solid ${colors.border.subtle}` : '1px solid transparent',
-              borderRadius: '3px',
-              padding: phase === 2 ? '3px 8px' : '0',
-              color: phase === 2 ? (i % 2 === 0 ? colors.accent : colors.text.secondary) : colors.text.primary,
-              fontSize: '15px',
-              fontWeight: 500,
-              transition: 'all 0.3s ease',
-              whiteSpace: 'pre',
-            }}>
-            {tok}
-          </motion.span>
-        ))}
+    <Box
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+      sx={{
+        border: `1px solid ${colors.border.subtle}`,
+        borderRadius: '14px',
+        backgroundColor: colors.isDark ? 'rgba(17,17,17,0.85)' : 'rgba(255,255,255,0.82)',
+        backdropFilter: 'blur(14px)',
+        boxShadow: colors.isDark ? '0 30px 80px rgba(0,0,0,0.45)' : '0 30px 80px rgba(15,23,42,0.08)',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
+    >
+      {/* Header */}
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, px: { xs: 2.5, md: 3 }, py: 1.75, borderBottom: `1px solid ${colors.border.subtle}` }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+          <Box sx={{ display: 'flex', gap: 0.75 }}>
+            {['#e05252', '#e8b84a', '#52c97c'].map((c) => (
+              <Box key={c} sx={{ width: 9, height: 9, borderRadius: '50%', backgroundColor: c, opacity: 0.7 }} />
+            ))}
+          </Box>
+          <Typography sx={{ fontFamily: MONO, fontSize: '10.5px', color: colors.text.tertiary, letterSpacing: '0.08em' }}>
+            {label}
+          </Typography>
+        </Box>
+        <Typography sx={{ fontFamily: MONO, fontSize: '10.5px', color: colors.text.tertiary, letterSpacing: '0.08em' }}>
+          {String(total || count).padStart(2, '0')} products
+        </Typography>
       </Box>
 
-      {phase === 2 && (
-        <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.5 }}>
-          <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10px', color: colors.text.tertiary, mt: 1.5, letterSpacing: '0.03em' }}>
-            → [{ids.join(', ')}]
+      {/* Rows */}
+      <Box component="ul" sx={{ listStyle: 'none', m: 0, p: { xs: 2, md: 2.5 }, display: 'flex', flexDirection: 'column' }}>
+        {products.map((p, i) => {
+          const isActive = i === active;
+          const isLast = i === count - 1;
+          return (
+            <Box component="li" key={p.id} sx={{ display: 'grid', gridTemplateColumns: '18px 1fr', columnGap: { xs: 1.5, md: 2 } }}>
+              {/* Rail */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', pt: '22px' }}>
+                <Box
+                  sx={{
+                    width: 9, height: 9, borderRadius: '50%', flexShrink: 0,
+                    backgroundColor: isActive ? colors.accent : colors.stone600,
+                    boxShadow: isActive ? `0 0 0 5px ${colors.accentFaint}` : 'none',
+                    transition: 'background-color 0.3s ease, box-shadow 0.3s ease',
+                  }}
+                />
+                {!isLast && <Box sx={{ width: '1px', flex: 1, backgroundColor: colors.border.default, my: 0.75 }} />}
+              </Box>
+
+              <Box
+                component={Link}
+                to={productHref(p)}
+                onMouseEnter={() => setActive(i)}
+                onFocus={() => setActive(i)}
+                aria-current={isActive ? 'true' : undefined}
+                sx={{
+                  display: 'block',
+                  textDecoration: 'none',
+                  borderRadius: '10px',
+                  px: { xs: 1.5, md: 2 },
+                  py: 1.5,
+                  mb: isLast ? 0 : 1,
+                  border: `1px solid ${isActive ? `${colors.accent}33` : 'transparent'}`,
+                  backgroundColor: isActive ? colors.accentFaint : 'transparent',
+                  transition: 'background-color 0.3s ease, border-color 0.3s ease',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  '&:hover': { borderColor: `${colors.accent}55` },
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 38, height: 38, borderRadius: '9px', flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      backgroundColor: isActive ? colors.accent : colors.inkSurface,
+                      color: isActive ? (colors.isDark ? '#0a0a0a' : '#ffffff') : colors.text.tertiary,
+                      transition: 'all 0.3s ease',
+                    }}
+                  >
+                    <ContentIcon name={p.icon} sx={{ fontSize: 20 }} />
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography sx={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 600, fontSize: { xs: '0.95rem', md: '1rem' }, letterSpacing: '-0.015em', color: colors.text.primary, lineHeight: 1.2 }}>
+                      {p.title}
+                    </Typography>
+                    {p.tagline && (
+                      <Typography sx={{ fontFamily: MONO, fontSize: '11px', color: colors.text.tertiary, mt: 0.35, letterSpacing: '0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {p.tagline}
+                      </Typography>
+                    )}
+                  </Box>
+                  {p.badge && (
+                    <Typography
+                      sx={{
+                        fontFamily: MONO, fontSize: '9.5px', letterSpacing: '0.08em', textTransform: 'uppercase', flexShrink: 0,
+                        color: p.badgeActive ? colors.accent : colors.text.tertiary,
+                        display: { xs: 'none', sm: 'block' },
+                      }}
+                    >
+                      {p.badge}
+                    </Typography>
+                  )}
+                </Box>
+
+                <AnimatePresence initial={false}>
+                  {isActive && (
+                    <motion.div
+                      key="desc"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.4, ease: EASE }}
+                      style={{ overflow: 'hidden' }}
+                    >
+                      <Typography sx={{ fontFamily: '"Inter",sans-serif', fontSize: '13px', lineHeight: 1.65, color: colors.text.secondary, pt: 1.5, pl: { sm: '54px' } }}>
+                        {p.description}
+                      </Typography>
+                      <Typography sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, fontFamily: MONO, fontSize: '11px', color: colors.accent, mt: 1.25, pl: { sm: '54px' }, letterSpacing: '0.04em' }}>
+                        Learn more <ArrowRightAltIcon sx={{ fontSize: 14 }} />
+                      </Typography>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Cycle progress */}
+                {isActive && count > 1 && (
+                  <Box
+                    key={`bar-${active}`}
+                    aria-hidden="true"
+                    sx={{
+                      position: 'absolute', left: 0, bottom: 0, height: 2, width: '100%',
+                      transformOrigin: 'left', backgroundColor: colors.accent, opacity: 0.6,
+                      animation: `heroCycle ${CYCLE_MS}ms linear`,
+                      animationPlayState: paused ? 'paused' : 'running',
+                      '@keyframes heroCycle': { from: { transform: 'scaleX(0)' }, to: { transform: 'scaleX(1)' } },
+                    }}
+                  />
+                )}
+              </Box>
+            </Box>
+          );
+        })}
+      </Box>
+
+      {/* Footer */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          justifyContent: 'space-between',
+          gap: { xs: 1, sm: 2 },
+          px: { xs: 2.5, md: 3 }, py: 1.75,
+          borderTop: `1px solid ${colors.border.subtle}`,
+        }}
+      >
+        <Typography sx={{ fontFamily: '"Inter",sans-serif', fontSize: '12.5px', color: colors.text.tertiary, lineHeight: 1.5 }}>
+          {footer}
+        </Typography>
+        {current?.externalHref && (
+          <Typography
+            component="a"
+            href={current.externalHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, fontFamily: MONO, fontSize: '11px', color: colors.accent, whiteSpace: 'nowrap', flexShrink: 0, textDecoration: 'none', '&:hover': { opacity: 0.75 } }}
+          >
+            {current.externalLabel || 'Open platform'} <ArrowOutwardIcon sx={{ fontSize: 12 }} />
           </Typography>
-          <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10px', color: colors.accent, mt: 0.5, letterSpacing: '0.03em' }}>
-            compression: {hero.demoCompression} · {text.length} chars → {tokens.length} tokens
-          </Typography>
-        </motion.div>
-      )}
+        )}
+      </Box>
     </Box>
   );
 }
@@ -85,7 +219,7 @@ function ParticleCanvas() {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return undefined;
     const ctx = canvas.getContext('2d');
     let animId;
     let W, H, particles = [];
@@ -93,7 +227,7 @@ function ParticleCanvas() {
     const resize = () => {
       W = canvas.width = canvas.offsetWidth;
       H = canvas.height = canvas.offsetHeight;
-      const count = Math.floor((W * H) / 12000);
+      const count = Math.min(180, Math.floor((W * H) / 12000));
       particles = Array.from({ length: count }, () => ({
         x: Math.random() * W, y: Math.random() * H,
         r: Math.random() * 1.4 + 0.5,
@@ -104,7 +238,7 @@ function ParticleCanvas() {
 
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
-      particles.forEach(p => {
+      particles.forEach((p) => {
         p.x = (p.x + p.vx + W) % W;
         p.y = (p.y + p.vy + H) % H;
         ctx.beginPath();
@@ -112,8 +246,9 @@ function ParticleCanvas() {
         ctx.fillStyle = `rgba(26,159,255,${p.opacity * (colors.isDark ? 0.55 : 0.65)})`;
         ctx.fill();
       });
-      particles.forEach((p, i) => {
-        particles.slice(i + 1).forEach(q => {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const p = particles[i], q = particles[j];
           const dx = p.x - q.x, dy = p.y - q.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < 90) {
@@ -126,8 +261,8 @@ function ParticleCanvas() {
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }
-        });
-      });
+        }
+      }
       animId = requestAnimationFrame(draw);
     };
 
@@ -140,7 +275,7 @@ function ParticleCanvas() {
 
   return (
     <canvas ref={canvasRef} aria-hidden="true"
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: 1 }} />
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />
   );
 }
 
@@ -148,44 +283,77 @@ function ParticleCanvas() {
 export default function Hero() {
   const colors = useColors();
   const { hero } = useModule('home');
+  const { catalog } = useModule('products');
+  // The panel shows the featured products (first four as a fallback) so it
+  // stays compact however large the catalogue grows.
+  const all = catalog.items || [];
+  const flagged = all.filter((p) => p.featured);
+  const products = (flagged.length > 0 ? flagged : all).slice(0, 4);
+
+  const rise = (delay) => ({
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.6, delay, ease: EASE },
+  });
 
   return (
     <Box
       component="section"
       aria-label="Hero"
-      sx={{ position: 'relative', minHeight: { xs: '85vh', md: '88vh' }, display: 'flex', alignItems: 'center', overflow: 'hidden', backgroundColor: colors.ink }}
+      sx={{
+        position: 'relative',
+        minHeight: { md: 'min(88vh, 980px)' },
+        display: 'flex',
+        alignItems: 'center',
+        overflow: 'hidden',
+        backgroundColor: colors.ink,
+      }}
     >
       <ParticleCanvas />
 
-      {/* Dot grid */}
       <Box aria-hidden="true" sx={{
         position: 'absolute', inset: 0,
         backgroundImage: `radial-gradient(${colors.dotColor} 1px, transparent 1px)`,
         backgroundSize: '32px 32px',
         opacity: colors.isDark ? 0.4 : 0.65,
+        maskImage: 'radial-gradient(ellipse 90% 80% at 50% 40%, black 30%, transparent 100%)',
+        WebkitMaskImage: 'radial-gradient(ellipse 90% 80% at 50% 40%, black 30%, transparent 100%)',
         zIndex: 0,
       }} />
 
-      {/* Accent glow */}
       <Box aria-hidden="true" sx={{
-        position: 'absolute', top: '10%', right: '-10%', width: '55%', height: '70%',
-        background: `radial-gradient(ellipse at center, ${colors.accentFaint} 0%, transparent 70%)`,
+        position: 'absolute', top: '5%', right: '-8%', width: '55%', height: '75%',
+        background: `radial-gradient(ellipse at center, ${colors.accentSubtle} 0%, transparent 65%)`,
+        filter: 'blur(20px)',
+        zIndex: 0, pointerEvents: 'none',
+      }} />
+      <Box aria-hidden="true" sx={{
+        position: 'absolute', bottom: '-20%', left: '-10%', width: '45%', height: '60%',
+        background: `radial-gradient(ellipse at center, ${colors.accentFaint} 0%, transparent 65%)`,
         zIndex: 0, pointerEvents: 'none',
       }} />
 
-      <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 2, px: { xs: 3, md: 4 }, py: { xs: 8, md: 0 } }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: { xs: 6, lg: 8 }, alignItems: 'center' }}>
+      <Container sx={{ position: 'relative', zIndex: 2, px: CONTAINER_PX, py: { xs: 8, md: 10, xl: 12 } }}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1.05fr) minmax(0, 0.95fr)' },
+            gap: { xs: 7, lg: 8, xl: 12 },
+            alignItems: 'center',
+          }}
+        >
+          {/* Copy: centred on phones, left-aligned beside the panel on desktop */}
+          <Box sx={{ maxWidth: { lg: 680, xl: 760 }, textAlign: { xs: 'center', lg: 'left' }, mx: { xs: 'auto', lg: 0 } }}>
+            
 
-          {/* Left: copy */}
-          <Box>
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
+            <motion.div {...rise(0.05)}>
               <Typography
                 variant="h1"
                 sx={{
-                  fontSize: { xs: '2.5rem', sm: '3.25rem', md: '3.75rem', lg: '4rem' },
+                  fontSize: 'clamp(2.5rem, 1.5rem + 3.6vw, 5.25rem)',
                   fontWeight: 600,
                   letterSpacing: '-0.035em',
-                  lineHeight: 1.08,
+                  lineHeight: 1.05,
                   color: colors.text.primary,
                   mb: 3,
                 }}
@@ -202,76 +370,43 @@ export default function Hero() {
               </Typography>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}>
+            <motion.div {...rise(0.15)}>
               <Typography
-                sx={{ color: colors.text.secondary, fontSize: { xs: '1rem', md: '1.1rem' }, lineHeight: 1.75, maxWidth: 480, mb: 4.5, fontFamily: '"Inter",sans-serif' }}
+                sx={{
+                  color: colors.text.secondary,
+                  fontSize: 'clamp(1rem, 0.92rem + 0.3vw, 1.25rem)',
+                  lineHeight: 1.75,
+                  maxWidth: 560,
+                  mx: { xs: 'auto', lg: 0 },
+                  mb: 4.5,
+                  fontFamily: '"Inter",sans-serif',
+                }}
               >
                 {hero.subtitle}
               </Typography>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}>
-              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <Button component={Link} to={hero.ctaHref || '/products'} variant="contained" size="large" endIcon={<ArrowRightAltIcon />} sx={{ py: 1.25, px: 3 }}>
+            <motion.div {...rise(0.25)}>
+              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', justifyContent: { xs: 'center', lg: 'flex-start' } }}>
+                <Button component={Link} to={hero.ctaHref || '/products'} variant="contained" size="large" endIcon={<ArrowRightAltIcon />} sx={{ py: 1.35, px: 3.25 }}>
                   {hero.ctaLabel}
                 </Button>
+                {hero.secondaryCtaLabel && (
+                  <Button component={Link} to={hero.secondaryCtaHref || '/company/about-us'} variant="outlined" size="large" sx={{ py: 1.35, px: 3 }}>
+                    {hero.secondaryCtaLabel}
+                  </Button>
+                )}
               </Box>
             </motion.div>
           </Box>
 
-          {/* Right: tokenizer demo */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.7, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}>
-            <Box
-              sx={{
-                border: `1px solid ${colors.border.subtle}`,
-                borderRadius: '8px',
-                backgroundColor: colors.inkLight,
-                boxShadow: colors.isDark ? 'none' : '0 20px 60px rgba(15,23,42,0.06)',
-                p: { xs: 2.5, md: 3.5 },
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
-              {/* Terminal header */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pb: 2, mb: 2.5, borderBottom: `1px solid ${colors.border.subtle}` }}>
-                <Box sx={{ display: 'flex', gap: 0.75 }}>
-                  {['#e05252', '#e8b84a', '#52c97c'].map((c, i) => (
-                    <Box key={i} sx={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: c, opacity: 0.7 }} />
-                  ))}
-                </Box>
-                <Typography sx={{ fontFamily: '"IBM Plex Mono",monospace', fontSize: '10.5px', color: colors.text.tertiary, letterSpacing: '0.06em', ml: 0.5 }}>
-                  {hero.terminalLabel}
-                </Typography>
-              </Box>
-
-              <TokenViz hero={hero} />
-
-              {hero.playgroundHref && (
-                <Box sx={{ mt: 3, pt: 2.5, borderTop: `1px solid ${colors.border.subtle}` }}>
-                  <Typography
-                    component="a"
-                    href={hero.playgroundHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    sx={{
-                      fontFamily: '"IBM Plex Mono",monospace',
-                      fontSize: '11.5px',
-                      color: colors.accent,
-                      textDecoration: 'none',
-                      transition: 'opacity 0.15s ease',
-                      '&:hover': { opacity: 0.7 },
-                    }}
-                  >
-                    {hero.playgroundLabel}
-                  </Typography>
-                </Box>
-              )}
-            </Box>
+          {/* Ecosystem panel */}
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.35, ease: EASE }}>
+            <EcosystemPanel label={hero.panelLabel} footer={hero.panelFooter} products={products} total={all.length} />
           </motion.div>
         </Box>
       </Container>
 
-      {/* Bottom fade */}
       <Box aria-hidden="true" sx={{
         position: 'absolute', bottom: 0, left: 0, right: 0, height: 120,
         background: `linear-gradient(to top, ${colors.ink}, transparent)`,

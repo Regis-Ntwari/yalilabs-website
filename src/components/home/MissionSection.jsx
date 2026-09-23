@@ -1,6 +1,7 @@
 import { Box, Container, Typography } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useColors } from '../../theme/ThemeContext';
+import { CONTAINER_PX, SECTION_PY } from '../../theme/layout';
 import { useModule } from '../../content/useContent';
 import AnimatedReveal from '../common/AnimatedReveal';
 
@@ -37,9 +38,9 @@ export default function MissionSection() {
     <Box
       component="section"
       aria-labelledby="mission-heading"
-      sx={{ py: { xs: 10, md: 14 }, backgroundColor: colors.ink, borderTop: `1px solid ${colors.border.subtle}` }}
+      sx={{ py: SECTION_PY, backgroundColor: colors.ink, borderTop: `1px solid ${colors.border.subtle}` }}
     >
-      <Container maxWidth="lg" sx={{ px: { xs: 3, md: 4 } }}>
+      <Container sx={{ px: CONTAINER_PX }}>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '1fr 1fr' }, gap: { xs: 8, lg: 10 }, alignItems: 'start' }}>
           {/* Left */}
           <Box>
@@ -58,19 +59,32 @@ export default function MissionSection() {
               ))}
             </AnimatedReveal>
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px,1fr))', gap: 3 }}>
+            {/* Phones: one stat per row (value | label). Larger: three columns. */}
+            <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', sm: 'repeat(3, minmax(0, 1fr))' }, gap: { xs: 0, sm: 3 } }}>
               {(mission.stats || []).map((stat, i) => (
                 <AnimatedReveal key={`${stat.label}-${i}`} delay={i * 0.1}>
-                  <Box sx={{ borderTop: `1px solid ${colors.border.subtle}`, pt: 2 }}>
-                    <Typography sx={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 600, fontSize: '1.75rem', letterSpacing: '-0.03em', color: colors.accent, lineHeight: 1, mb: 0.75 }}>
+                  <Box
+                    sx={{
+                      borderTop: `1px solid ${colors.border.subtle}`,
+                      py: { xs: 2, sm: 0 },
+                      pt: { sm: 2 },
+                      display: { xs: 'grid', sm: 'block' },
+                      gridTemplateColumns: { xs: '104px minmax(0, 1fr)' },
+                      columnGap: 2,
+                      alignItems: 'start',
+                    }}
+                  >
+                    <Typography sx={{ fontFamily: '"Space Grotesk",sans-serif', fontWeight: 600, fontSize: { xs: '1.6rem', sm: '1.75rem' }, letterSpacing: '-0.03em', color: colors.accent, lineHeight: 1, mb: { xs: 0, sm: 0.75 } }}>
                       {stat.value}
                     </Typography>
-                    <Typography sx={{ fontSize: '12.5px', color: colors.text.secondary, fontFamily: '"Inter",sans-serif', lineHeight: 1.5, mb: 0.5 }}>
-                      {stat.label}
-                    </Typography>
-                    <Typography sx={{ fontSize: '11px', color: colors.text.tertiary, fontFamily: '"IBM Plex Mono",monospace', letterSpacing: '0.02em' }}>
-                      {stat.note}
-                    </Typography>
+                    <Box>
+                      <Typography sx={{ fontSize: '12.5px', color: colors.text.secondary, fontFamily: '"Inter",sans-serif', lineHeight: 1.5, mb: 0.5 }}>
+                        {stat.label}
+                      </Typography>
+                      <Typography sx={{ fontSize: '11px', color: colors.text.tertiary, fontFamily: '"IBM Plex Mono",monospace', letterSpacing: '0.02em' }}>
+                        {stat.note}
+                      </Typography>
+                    </Box>
                   </Box>
                 </AnimatedReveal>
               ))}
